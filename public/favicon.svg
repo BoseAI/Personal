@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0b0b0c"/><rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="#26262a" stroke-width="2"/><path d="M22 46V18h12a9 9 0 0 1 0 18H22" fill="none" stroke="#c6f432" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+<radialGradient id="bg" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="#16180f"/><stop offset=".6" stop-color="#0c0d0a"/><stop offset="1" stop-color="#070707"/></radialGradient>
+<filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7" result="b"/><feComponentTransfer in="b" result="soft"><feFuncA type="linear" slope="0.45"/></feComponentTransfer><feMerge><feMergeNode in="soft"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="512" height="512" rx="112" fill="url(#bg)"/>
+<g filter="url(#glow)">
+<g fill="none" stroke="#c6f432" stroke-linecap="round" stroke-linejoin="round">
+<path d="M178 410 C160 360 128 300 134 232 C140 150 206 104 284 108 C350 112 386 160 388 214 L392 236 C394 248 400 256 414 278 C420 288 418 296 404 300 L402 312 C406 320 404 326 398 330 C404 336 402 342 396 346 C392 360 386 370 372 376 C352 382 336 380 328 388 L326 418" stroke-width="13"/>
+<g stroke-width="8"><path d="M200 230h52l24-30h40"/><path d="M190 270h90l20 22h34"/><path d="M226 180v-28"/><path d="M252 230v60"/></g>
+</g>
+<g fill="#c6f432"><circle cx="316" cy="200" r="11"/><circle cx="334" cy="292" r="11"/><circle cx="226" cy="150" r="11"/><circle cx="200" cy="230" r="10"/><circle cx="190" cy="270" r="10"/></g>
+</g>
+</svg>
