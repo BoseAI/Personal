@@ -1,6 +1,6 @@
 # BoseIA
 
-App personale (PWA) installabile su iPhone e usabile da qualsiasi browser: finanze, liste della spesa e (presto) palestra.
+App personale (PWA) installabile su iPhone e usabile da qualsiasi browser: finanze, liste della spesa, allenamento e alimentazione.
 
 **Stack:** React 19 + TypeScript + Vite · Tailwind CSS v4 · TanStack Query · Recharts · Supabase (Postgres, Auth, Realtime, RLS) · deploy su Vercel. Tutto nei piani gratuiti.
 
@@ -16,6 +16,8 @@ src/
   modules/home/       home con la scelta delle sezioni
   modules/finance/    conti, movimenti, categorie, ricorrenti, report
   modules/shopping/   liste della spesa condivise
+  modules/workout/    catalogo esercizi, schede, allenamento live, corsa/nuoto
+  modules/nutrition/  diario pasti, acqua, peso, obiettivi e valutazione
   modules/settings/   profilo, conti, utenti e sezioni (admin)
 supabase/
   migrations/         schema del DB (unica fonte di verità)
@@ -36,6 +38,20 @@ supabase/
 - Elementi: nome + quantità (default 1). Aggiungere un elemento già presente ne aumenta la quantità, o lo rimette in lista se era spuntato.
 - Per ogni lista si sceglie cosa succede agli spuntati: **in fondo**, **restano** al loro posto o **eliminati** (con *Annulla*).
 - Ricerca su tutte le liste e dentro la singola lista; aggiornamenti in tempo reale tra i membri.
+
+## Allenamento
+
+- **Catalogo** di ~190 esercizi (`workout/catalog.ts`) con muscoli primari/secondari; ricerca per muscolo con ordinamento per pertinenza; esercizi personalizzati.
+- **Schede** (`workout_plans.blocks`, JSON): blocchi singoli, superserie e circuiti; tipo di serie (normale, drop set, piramidale, rest-pause). Il *focus* pesa 1 per serie sui muscoli primari e 0,5 sui secondari.
+- **Allenamento live** salvato in `localStorage` fino al termine: carichi precompilati dall'ultima sessione, timer di recupero (a fine giro per superserie/circuiti).
+- **Corsa e nuoto** registrati a mano (un'app web non può leggere Salute/Apple Watch), riepilogo settimanale e progressi (1RM stimato con Epley).
+
+## Alimentazione
+
+- **Cibi**: catalogo di ~180 alimenti comuni (valori medi CREA/USDA per 100 g), cibi propri, ricerca e codice a barre su **Open Food Facts** (i prodotti usati vengono salvati tra i propri).
+- **Obiettivi**: Mifflin-St Jeor × attività quotidiana (sport escluso), −20% / +10% per dimagrire / massa; proteine e grassi in g/kg, carboidrati per differenza, acqua 35 ml/kg. Nei giorni di allenamento si aggiungono le kcal stimate (MET × peso × ore) e 500 ml d'acqua per ora. Ogni valore si può correggere a mano.
+- **Valutazione del giorno** (0-100): calorie 35, proteine 25, acqua 20, equilibrio carboidrati/grassi 10, movimento 10.
+- **Peso**: pesate con media mobile a 7 giorni e peso obiettivo.
 
 ## Amministratore e sezioni
 

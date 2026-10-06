@@ -22,6 +22,10 @@ import { ProgressPage } from './modules/workout/pages/ProgressPage'
 import { SessionDetailPage } from './modules/workout/pages/SessionDetailPage'
 import { SummaryPage } from './modules/workout/pages/SummaryPage'
 import { WorkoutLayout } from './modules/workout/WorkoutLayout'
+import { NutritionLayout } from './modules/nutrition/NutritionLayout'
+import { GoalsPage } from './modules/nutrition/pages/GoalsPage'
+import { TodayPage } from './modules/nutrition/pages/TodayPage'
+import { WeightPage } from './modules/nutrition/pages/WeightPage'
 
 export function App() {
   return (
@@ -76,6 +80,18 @@ export function App() {
           <Route path="attivita/:sessionId" element={<SessionDetailPage />} />
           <Route path="progressi" element={<ProgressPage />} />
           <Route path="live" element={<LivePage />} />
+        </Route>
+        <Route
+          path="alimentazione"
+          element={
+            <ModuleGuard module="nutrition">
+              <NutritionLayout />
+            </ModuleGuard>
+          }
+        >
+          <Route index element={<TodayPage />} />
+          <Route path="peso" element={<WeightPage />} />
+          <Route path="obiettivi" element={<GoalsPage />} />
         </Route>
         <Route path="impostazioni" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

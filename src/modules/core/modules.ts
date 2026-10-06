@@ -16,5 +16,5 @@ export const MODULES: ModuleDef[] = [
   { key: 'finance', label: 'Finanze', description: 'Entrate, uscite e conti', path: '/finanze', icon: Wallet, color: '#c6f432' },
   { key: 'shopping', label: 'Spesa', description: 'Liste condivise', path: '/spesa', icon: ShoppingCart, color: '#2dd4bf' },
   { key: 'workout', label: 'Allenamento', description: 'Schede, palestra, corsa e nuoto', path: '/allenamento', icon: Dumbbell, color: '#fb923c' },
-  { key: 'nutrition', label: 'Alimentazione', description: 'Pasti, acqua e peso', path: '/alimentazione', icon: Apple, color: '#f472b6', soon: true },
+  { key: 'nutrition', label: 'Alimentazione', description: 'Pasti, acqua e peso', path: '/alimentazione', icon: Apple, color: '#f472b6' },
 ]

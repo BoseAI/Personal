@@ -1,4 +1,4 @@
-import { House, Settings } from 'lucide-react'
+import { House } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { cn } from '../../lib/cn'
 import { useEnabledModules } from '../../modules/core/api'
@@ -8,7 +8,6 @@ export function AppShell() {
   const nav = [
     { to: '/', label: 'Home', icon: House, end: true },
     ...modules.filter((m) => !m.soon).map((m) => ({ to: m.path, label: m.label, icon: m.icon, end: false })),
-    { to: '/impostazioni', label: 'Impostazioni', icon: Settings, end: false },
   ]
 
   return (

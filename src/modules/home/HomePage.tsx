@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Settings } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useUserId } from '../../auth/AuthProvider'
@@ -28,7 +28,10 @@ export function HomePage() {
 
   return (
     <div className="space-y-8 pt-8">
-      <header>
+      <header className="relative">
+        <Link to="/impostazioni" aria-label="Impostazioni" className="absolute -top-1 right-0 flex size-10 items-center justify-center rounded-xl text-muted hover:bg-surface-2 hover:text-fg">
+          <Settings className="size-5" />
+        </Link>
         <p className="font-mono text-[11px] tracking-[0.16em] text-faint uppercase">{header.today}</p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight">
           {header.greeting}
