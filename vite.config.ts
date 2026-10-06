@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon-v2.svg', 'apple-touch-icon-v2.png'],
       manifest: {
         name: 'BoseIA',
         short_name: 'BoseIA',
@@ -20,9 +20,9 @@ export default defineConfig({
         background_color: '#0b0b0c',
         theme_color: '#0b0b0c',
         icons: [
-          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon-v2-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icon-v2-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icon-v2-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {

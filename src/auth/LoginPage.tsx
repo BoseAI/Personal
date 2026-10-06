@@ -28,7 +28,7 @@ export function LoginPage() {
       <form onSubmit={submit} className="w-full max-w-sm space-y-5 rounded-3xl border border-line bg-surface p-6 shadow-2xl">
         <div className="space-y-1">
           <div className="mb-4 flex items-center gap-2">
-            <img src="/favicon.svg" alt="" className="size-8" />
+            <img src="/favicon-v2.svg" alt="" className="size-8" />
             <span className="font-mono text-xs tracking-[0.2em] text-faint uppercase">BoseIA</span>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Accedi</h1>
