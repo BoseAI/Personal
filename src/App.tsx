@@ -14,6 +14,14 @@ import { SettingsPage } from './modules/settings/SettingsPage'
 import { ListPage } from './modules/shopping/pages/ListPage'
 import { ShoppingHome } from './modules/shopping/pages/ShoppingHome'
 import { ShoppingLayout } from './modules/shopping/ShoppingLayout'
+import { ActivitiesPage } from './modules/workout/pages/ActivitiesPage'
+import { LivePage } from './modules/workout/pages/LivePage'
+import { PlanEditorPage } from './modules/workout/pages/PlanEditorPage'
+import { PlansPage } from './modules/workout/pages/PlansPage'
+import { ProgressPage } from './modules/workout/pages/ProgressPage'
+import { SessionDetailPage } from './modules/workout/pages/SessionDetailPage'
+import { SummaryPage } from './modules/workout/pages/SummaryPage'
+import { WorkoutLayout } from './modules/workout/WorkoutLayout'
 
 export function App() {
   return (
@@ -52,6 +60,22 @@ export function App() {
         >
           <Route index element={<ShoppingHome />} />
           <Route path=":listId" element={<ListPage />} />
+        </Route>
+        <Route
+          path="allenamento"
+          element={
+            <ModuleGuard module="workout">
+              <WorkoutLayout />
+            </ModuleGuard>
+          }
+        >
+          <Route index element={<SummaryPage />} />
+          <Route path="schede" element={<PlansPage />} />
+          <Route path="schede/:planId" element={<PlanEditorPage />} />
+          <Route path="attivita" element={<ActivitiesPage />} />
+          <Route path="attivita/:sessionId" element={<SessionDetailPage />} />
+          <Route path="progressi" element={<ProgressPage />} />
+          <Route path="live" element={<LivePage />} />
         </Route>
         <Route path="impostazioni" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
