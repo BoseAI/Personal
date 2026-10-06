@@ -1,9 +1,8 @@
-import { Trash2, UserMinus } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
-import { useUserId } from '../../auth/AuthProvider'
-import { Button, IconButton } from '../../components/ui/Button'
-import { SectionTitle } from '../../components/ui/Card'
-import { ErrorText, Field, Input, Select } from '../../components/ui/Field'
+import { MembersEditor } from '../../components/MembersEditor'
+import { Button } from '../../components/ui/Button'
+import { ErrorText, Field, Input } from '../../components/ui/Field'
 import { IconChip } from '../../components/ui/IconChip'
 import { ColorPicker, IconPicker } from '../../components/ui/IconPicker'
 import { Segmented } from '../../components/ui/Segmented'
@@ -11,11 +10,8 @@ import { Sheet } from '../../components/ui/Sheet'
 import { SWATCHES } from '../../lib/colors'
 import { amountToInput, parseAmount } from '../../lib/format'
 import { errorMessage } from '../../lib/supabase'
-import { useAccount } from '../finance/AccountContext'
 import { useAddMember, useDeleteAccount, useMembers, useSaveAccount, useUpdateMember } from '../finance/api'
-import { ROLE_LABELS, type AccountKind, type AccountWithRole, type MemberRole } from '../finance/types'
-
-const ROLES: MemberRole[] = ['owner', 'editor', 'viewer']
+import type { AccountKind, AccountWithRole } from '../finance/types'
 
 type Props = { open: boolean; onClose: () => void; account?: AccountWithRole }
 
@@ -24,7 +20,6 @@ export function AccountSheet(props: Props) {
 }
 
 function AccountForm({ open, onClose, account }: Props) {
-  const { setAccountId } = useAccount()
   const save = useSaveAccount()
   const del = useDeleteAccount()
   const isOwner = !account || account.role === 'owner'
@@ -63,7 +58,6 @@ function AccountForm({ open, onClose, account }: Props) {
     if (typed?.trim() !== account.name) return
     try {
       await del.mutateAsync(account.id)
-      setAccountId('')
       onClose()
     } catch (err) {
       setError(errorMessage(err))
@@ -141,92 +135,16 @@ function AccountForm({ open, onClose, account }: Props) {
 }
 
 function MembersSection({ account }: { account: AccountWithRole }) {
-  const uid = useUserId()
   const { data: members = [] } = useMembers(account.id)
   const add = useAddMember()
   const update = useUpdateMember()
-  const [email, setEmail] = useState('')
-  const [role, setRole] = useState<MemberRole>('editor')
-  const [error, setError] = useState<string | null>(null)
-  const isOwner = account.role === 'owner'
-
-  async function invite(e: FormEvent) {
-    e.preventDefault()
-    if (!email.trim()) return
-    try {
-      await add.mutateAsync({ accountId: account.id, email: email.trim(), role })
-      setEmail('')
-      setError(null)
-    } catch (err) {
-      setError(errorMessage(err))
-    }
-  }
-
-  async function change(userId: string, next: MemberRole | null) {
-    if (next === null && !confirm(userId === uid ? 'Uscire da questo conto?' : 'Rimuovere l\'accesso a questo utente?')) return
-    try {
-      await update.mutateAsync({ accountId: account.id, userId, role: next })
-      setError(null)
-    } catch (err) {
-      setError(errorMessage(err))
-    }
-  }
-
   return (
-    <section className="space-y-3">
-      <SectionTitle>Chi può accedere</SectionTitle>
-      <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line">
-        {members.map((m) => (
-          <div key={m.user_id} className="flex items-center gap-3 px-3 py-2.5">
-            <div className="flex size-8 items-center justify-center rounded-full bg-surface-3 text-xs font-semibold">
-              {(m.profile?.display_name ?? '?').charAt(0).toUpperCase()}
-            </div>
-            <span className="flex-1 truncate text-sm">
-              {m.profile?.display_name}
-              {m.user_id === uid && <span className="text-faint"> (tu)</span>}
-            </span>
-            {isOwner ? (
-              <Select value={m.role} onChange={(e) => change(m.user_id, e.target.value as MemberRole)} className="h-9 w-36 text-sm">
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {ROLE_LABELS[r]}
-                  </option>
-                ))}
-              </Select>
-            ) : (
-              <span className="text-xs text-faint">{ROLE_LABELS[m.role]}</span>
-            )}
-            {(isOwner || m.user_id === uid) && (
-              <IconButton label={m.user_id === uid ? 'Esci dal conto' : 'Rimuovi'} onClick={() => change(m.user_id, null)}>
-                <UserMinus className="size-4" />
-              </IconButton>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {isOwner && (
-        <form onSubmit={invite} className="space-y-2">
-          <div className="grid grid-cols-[1fr_auto] gap-2">
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email utente" />
-            <Select value={role} onChange={(e) => setRole(e.target.value as MemberRole)} className="w-36">
-              {ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {ROLE_LABELS[r]}
-                </option>
-              ))}
-            </Select>
-          </div>
-          <Button type="submit" className="w-full" loading={add.isPending}>
-            Dai accesso
-          </Button>
-          <p className="text-xs text-faint">
-            <strong className="text-muted">Sola lettura</strong>: vede saldo e movimenti. <strong className="text-muted">Modifica</strong>: aggiunge e
-            modifica movimenti, categorie e ricorrenti. <strong className="text-muted">Proprietario</strong>: in più gestisce il conto e gli accessi.
-          </p>
-        </form>
-      )}
-      <ErrorText error={error} />
-    </section>
+    <MembersEditor
+      members={members.map((m) => ({ user_id: m.user_id, role: m.role, display_name: m.profile?.display_name ?? '' }))}
+      isOwner={account.role === 'owner'}
+      onAdd={(email, role) => add.mutateAsync({ accountId: account.id, email, role })}
+      onChange={(userId, role) => update.mutateAsync({ accountId: account.id, userId, role })}
+      roleHelp="Sola lettura: vede saldo e movimenti. Modifica: aggiunge e modifica movimenti, categorie e ricorrenti. Proprietario: in più gestisce il conto e gli accessi."
+    />
   )
 }

@@ -10,7 +10,6 @@ import type {
   CategoryNode,
   Member,
   MemberRole,
-  Profile,
   Recurring,
   Transaction,
 } from './types'
@@ -20,7 +19,6 @@ import type {
 // -----------------------------------------------------------------------------
 export const qk = {
   accounts: ['accounts'] as const,
-  profile: ['profile'] as const,
   categories: (accountId: string) => ['categories', accountId] as const,
   allCategories: ['categories'] as const,
   transactions: (accountId: string, from: string, to: string) => ['transactions', accountId, from, to] as const,
@@ -58,23 +56,6 @@ function rankAccount(a: AccountWithRole, uid: string) {
   if (a.kind === 'personal' && a.created_by === uid) return 0
   if (a.kind === 'shared') return 1
   return 2
-}
-
-export function useProfile() {
-  const uid = useUserId()
-  return useQuery({
-    queryKey: qk.profile,
-    queryFn: async () => unwrap(await supabase.from('profiles').select('id, display_name').eq('id', uid).single()) as Profile,
-  })
-}
-
-export function useUpdateProfile() {
-  const qc = useQueryClient()
-  const uid = useUserId()
-  return useMutation({
-    mutationFn: async (display_name: string) => unwrap(await supabase.from('profiles').update({ display_name }).eq('id', uid)),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.profile }),
-  })
 }
 
 export function useSaveAccount() {

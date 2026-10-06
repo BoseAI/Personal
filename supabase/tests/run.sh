@@ -10,5 +10,5 @@ trap 'psql "$PGURL" -qc "drop database if exists $DB" >/dev/null' EXIT
 URL="${PGURL%/*}/$DB"
 psql "$URL" -q -v ON_ERROR_STOP=1 -f tests/supabase_stub.sql
 for f in migrations/*.sql; do psql "$URL" -q -v ON_ERROR_STOP=1 -f "$f"; done
-psql "$URL" -q -v ON_ERROR_STOP=1 -f tests/finance_test.sql
+for f in tests/*_test.sql; do psql "$URL" -q -v ON_ERROR_STOP=1 -f "$f"; done
 echo "OK: tutti i test del database sono passati"

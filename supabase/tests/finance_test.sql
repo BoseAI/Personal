@@ -38,7 +38,8 @@ select pg_temp.login('mattia@test.it');
 do $$
 begin
   assert (select count(*) from public.accounts) = 1, 'Mattia vede solo il suo conto';
-  assert (select count(*) from public.profiles) = 1, 'Mattia vede solo il suo profilo';
+  -- Mattia è il primo utente, quindi amministratore: vede tutti i profili.
+  assert (select count(*) from public.profiles) = 3, 'admin vede tutti i profili';
 end $$;
 
 -- Conto condiviso creato da Mattia
@@ -66,6 +67,7 @@ begin
     assert sqlerrm <> 'doveva fallire', 'add_account_member senza permessi deve fallire';
   end;
   assert (select count(*) from public.accounts) = 1, 'altro vede solo il suo conto';
+  assert (select count(*) from public.profiles) = 1, 'altro vede solo il suo profilo';
 end $$;
 
 select pg_temp.login('lei@test.it');

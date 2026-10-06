@@ -4,13 +4,24 @@ import { ICON_GROUPS, ICONS } from '../../lib/icons'
 import { SWATCHES, tint } from '../../lib/colors'
 import { cn } from '../../lib/cn'
 
-export function IconPicker({ value, color, onChange }: { value: string; color: string; onChange: (icon: string) => void }) {
+export function IconPicker({
+  value,
+  color,
+  onChange,
+  preferGroups = [],
+}: {
+  value: string
+  color: string
+  onChange: (icon: string) => void
+  /** Gruppi da mostrare per primi (es. ['Spesa e cibo']). */
+  preferGroups?: string[]
+}) {
   const [q, setQ] = useState('')
   const groups = useMemo(() => {
     const s = q.trim().toLowerCase()
-    if (!s) return ICON_GROUPS
+    if (!s) return [...ICON_GROUPS].sort((a, b) => Number(preferGroups.includes(b.label)) - Number(preferGroups.includes(a.label)))
     return [{ label: 'Risultati', icons: Object.keys(ICONS).filter((n) => n.includes(s)) }]
-  }, [q])
+  }, [q, preferGroups])
 
   return (
     <div className="rounded-xl border border-line bg-surface-2">
