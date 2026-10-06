@@ -20,6 +20,7 @@ create table public.profiles (
   display_name text not null check (length(trim(display_name)) > 0),
   created_at   timestamptz not null default now()
 );
+alter table public.profiles enable row level security;
 
 create table public.accounts (
   id              uuid primary key default gen_random_uuid(),
@@ -31,6 +32,7 @@ create table public.accounts (
   created_by      uuid references public.profiles (id) on delete set null,
   created_at      timestamptz not null default now()
 );
+alter table public.accounts enable row level security;
 
 create table public.account_members (
   account_id uuid not null references public.accounts (id) on delete cascade,
@@ -40,6 +42,7 @@ create table public.account_members (
   primary key (account_id, user_id)
 );
 create index account_members_user_idx on public.account_members (user_id);
+alter table public.account_members enable row level security;
 
 create table public.categories (
   id                   uuid primary key default gen_random_uuid(),
@@ -60,6 +63,7 @@ create index categories_account_idx on public.categories (account_id);
 create index categories_parent_idx on public.categories (parent_id);
 create unique index categories_unique_name_idx
   on public.categories (account_id, kind, coalesce(parent_id, '00000000-0000-0000-0000-000000000000'::uuid), lower(name));
+alter table public.categories enable row level security;
 
 create table public.recurring_transactions (
   id           uuid primary key default gen_random_uuid(),
@@ -82,6 +86,7 @@ create table public.recurring_transactions (
   check (end_date is null or end_date >= start_date)
 );
 create index recurring_account_idx on public.recurring_transactions (account_id);
+alter table public.recurring_transactions enable row level security;
 
 create table public.transactions (
   id                 uuid primary key default gen_random_uuid(),
@@ -102,6 +107,7 @@ create index transactions_account_date_idx on public.transactions (account_id, d
 create index transactions_category_idx on public.transactions (category_id);
 create unique index transactions_recurring_date_idx
   on public.transactions (recurring_id, date) where recurring_id is not null;
+alter table public.transactions enable row level security;
 
 -- -----------------------------------------------------------------------------
 -- Helper permessi
@@ -660,15 +666,8 @@ as $$
 $$;
 
 -- -----------------------------------------------------------------------------
--- Row Level Security
+-- Row Level Security (attivata subito dopo ogni create table)
 -- -----------------------------------------------------------------------------
-alter table public.profiles enable row level security;
-alter table public.accounts enable row level security;
-alter table public.account_members enable row level security;
-alter table public.categories enable row level security;
-alter table public.transactions enable row level security;
-alter table public.recurring_transactions enable row level security;
-
 -- profiles
 create policy profiles_select on public.profiles for select to authenticated
   using (id = auth.uid() or public.shares_account_with(id));
