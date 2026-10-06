@@ -73,6 +73,24 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Niente zoom: né doppio tocco né scorrimento orizzontale accidentale. */
+html,
+body {
+  touch-action: manipulation;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* iOS ingrandisce la pagina sui campi con testo < 16px: su touch li forziamo a 16px. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   font-feature-settings: 'cv11', 'ss01';
