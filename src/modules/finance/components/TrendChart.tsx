@@ -62,8 +62,8 @@ export function TrendChart({ data, from, to }: { data: Row[]; from: string; to: 
                 )
               }}
             />
-            <Bar dataKey="income" fill="var(--series-income)" radius={[4, 4, 0, 0]} maxBarSize={14} />
-            <Bar dataKey="expense" fill="var(--series-expense)" radius={[4, 4, 0, 0]} maxBarSize={14} />
+            <Bar dataKey="income" fill="var(--series-income)" radius={[4, 4, 0, 0]} maxBarSize={14} isAnimationActive={false} />
+            <Bar dataKey="expense" fill="var(--series-expense)" radius={[4, 4, 0, 0]} maxBarSize={14} isAnimationActive={false} />
           </BarChart>
         </ResponsiveContainer>
       </div>

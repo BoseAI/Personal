@@ -7,15 +7,14 @@ import { cn } from '../../../lib/cn'
 import { buildTree } from '../api'
 import type { Category, CategoryKind } from '../types'
 
-type Totals = { category_id: string; total: number; count: number }[]
+export type Totals = { category_id: string; total: number; count: number }[]
 
-/** Ripartizione per categoria con barre di quota e drill-down sulle sottocategorie. */
-export function CategoryBreakdown({ categories, totals, kind }: { categories: Category[]; totals: Totals; kind: CategoryKind }) {
-  const [expanded, setExpanded] = useState<string | null>(null)
+export type CategoryRow = Category & { total: number; children: (Category & { total: number })[] }
+
+/** Totali per categoria principale (con sottocategorie), ordinati per importo. */
+export function categoryRows(categories: Category[], totals: Totals, kind: CategoryKind): CategoryRow[] {
   const totalOf = new Map(totals.map((t) => [t.category_id, t.total]))
-  const tree = buildTree(categories, kind, true)
-
-  const rows = tree
+  return buildTree(categories, kind, true)
     .map((p) => {
       const own = totalOf.get(p.id) ?? 0
       const children = p.children
@@ -27,6 +26,26 @@ export function CategoryBreakdown({ categories, totals, kind }: { categories: Ca
     })
     .filter((r) => r.total > 0)
     .sort((a, b) => b.total - a.total)
+}
+
+/** Ripartizione per categoria con barre di quota e drill-down sulle sottocategorie. */
+export function CategoryBreakdown({
+  categories,
+  totals,
+  kind,
+  expanded: controlled,
+  onExpand,
+}: {
+  categories: Category[]
+  totals: Totals
+  kind: CategoryKind
+  expanded?: string | null
+  onExpand?: (id: string | null) => void
+}) {
+  const [local, setLocal] = useState<string | null>(null)
+  const expanded = controlled !== undefined ? controlled : local
+  const setExpanded = onExpand ?? setLocal
+  const rows = categoryRows(categories, totals, kind)
 
   const grand = rows.reduce((s, r) => s + r.total, 0)
   if (!rows.length) return <EmptyState title={kind === 'expense' ? 'Nessuna uscita nel periodo' : 'Nessuna entrata nel periodo'} />
