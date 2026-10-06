@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Personal',
-        short_name: 'Personal',
+        name: 'BoseIA',
+        short_name: 'BoseIA',
         description: 'Finanze, spesa e allenamento',
         lang: 'it',
         start_url: '/',

@@ -29,7 +29,7 @@ export function LoginPage() {
         <div className="space-y-1">
           <div className="mb-4 flex items-center gap-2">
             <img src="/favicon.svg" alt="" className="size-8" />
-            <span className="font-mono text-xs tracking-[0.2em] text-faint uppercase">Personal</span>
+            <span className="font-mono text-xs tracking-[0.2em] text-faint uppercase">BoseIA</span>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Accedi</h1>
           <p className="text-sm text-muted">Accesso riservato agli utenti invitati.</p>

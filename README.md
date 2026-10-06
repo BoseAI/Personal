@@ -1,4 +1,4 @@
-# Personal
+# BoseIA
 
 App personale (PWA) installabile su iPhone e usabile da qualsiasi browser: finanze, poi spesa e allenamento.
 
