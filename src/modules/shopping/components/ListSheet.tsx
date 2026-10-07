@@ -1,4 +1,4 @@
-import { LogOut, Trash2 } from 'lucide-react'
+import { LogOut, PackagePlus, Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserId } from '../../../auth/AuthProvider'
@@ -11,7 +11,9 @@ import { Segmented } from '../../../components/ui/Segmented'
 import { Sheet } from '../../../components/ui/Sheet'
 import { SWATCHES } from '../../../lib/colors'
 import { errorMessage } from '../../../lib/supabase'
-import { useAddListMember, useDeleteList, useListMembers, useSaveList, useUpdateListMember } from '../api'
+import { useToast } from '../../../components/ui/Toast'
+import { useAddListMember, useAllItems, useDeleteList, useListMembers, usePreloadItems, useSaveList, useUpdateListMember } from '../api'
+import { FOOD_PRESET_NAMES } from '../presets'
 import { BEHAVIOR_LABELS, type CheckedBehavior, type ShoppingListWithMeta } from '../types'
 
 const SHOPPING_ICON_GROUPS = ['Spesa e cibo', 'Casa', 'Persone e famiglia']
@@ -96,6 +98,7 @@ function ListForm({ onClose, list }: Props) {
       }
     >
       <div className="space-y-6">
+        {list && list.role !== 'viewer' && <PreloadSection listId={list.id} />}
         <form id="list-form" onSubmit={submit}>
           <fieldset disabled={!isOwner} className="space-y-5">
             <div className="flex items-center gap-3">
@@ -142,5 +145,28 @@ function ListMembers({ list }: { list: ShoppingListWithMeta }) {
       onChange={(userId, role) => update.mutateAsync({ listId: list.id, userId, role })}
       roleHelp="Sola lettura: vede la lista. Modifica: aggiunge, spunta ed elimina elementi. Proprietario: in più cambia impostazioni e condivisione."
     />
+  )
+}
+
+function PreloadSection({ listId }: { listId: string }) {
+  const toast = useToast()
+  const { data: items = [] } = useAllItems()
+  const preload = usePreloadItems()
+  const missing = FOOD_PRESET_NAMES.filter((n) => !items.some((i) => i.list_id === listId && i.name.trim().toLowerCase() === n.toLowerCase())).length
+
+  async function run() {
+    if (!confirm(`Aggiungere ${missing} prodotti alimentari comuni come già spuntati? Li riattivi con un tocco quando servono.`)) return
+    const added = await preload.mutateAsync({ listId, names: FOOD_PRESET_NAMES, existing: items })
+    toast({ message: `Aggiunti ${added} prodotti` }, 2500)
+  }
+
+  return (
+    <section className="space-y-2">
+      <p className="font-mono text-[11px] font-medium tracking-[0.12em] text-faint uppercase">Prodotti comuni</p>
+      <Button className="w-full" disabled={!missing} loading={preload.isPending} onClick={run}>
+        <PackagePlus className="size-4" /> {missing ? `Precarica ${missing} prodotti alimentari` : 'Prodotti comuni già caricati'}
+      </Button>
+      <p className="text-xs text-faint">Frutta, verdura, carne, latticini, dispensa, surgelati, bevande… entrano già spuntati: scrivi il nome o tocca il suggerimento per rimetterli da prendere.</p>
+    </section>
   )
 }

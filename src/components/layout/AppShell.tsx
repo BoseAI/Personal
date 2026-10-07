@@ -7,7 +7,7 @@ export function AppShell() {
   const { modules } = useEnabledModules()
   const nav = [
     { to: '/', label: 'Home', icon: House, end: true },
-    ...modules.filter((m) => !m.soon).map((m) => ({ to: m.path, label: m.label, icon: m.icon, end: false })),
+    ...modules.filter((m) => !m.soon).map((m) => ({ to: m.path, label: m.navLabel ?? m.label, icon: m.icon, end: false })),
   ]
 
   return (
@@ -23,13 +23,13 @@ export function AppShell() {
               to={to}
               end={end}
               className={({ isActive }) =>
-                cn('flex flex-1 flex-col items-center justify-center gap-1 transition', isActive ? 'text-fg' : 'text-faint hover:text-muted')
+                cn('flex min-w-0 flex-1 flex-col items-center justify-center gap-1 transition', isActive ? 'text-fg' : 'text-faint hover:text-muted')
               }
             >
               {({ isActive }) => (
                 <>
                   <Icon className="size-5" strokeWidth={isActive ? 2.25 : 1.75} />
-                  <span className="text-[10px] font-medium">{label}</span>
+                  <span className="max-w-full truncate px-0.5 text-[10px] font-medium">{label}</span>
                 </>
               )}
             </NavLink>

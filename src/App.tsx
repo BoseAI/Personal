@@ -11,6 +11,7 @@ import { RecurringPage } from './modules/finance/pages/RecurringPage'
 import { TransactionsPage } from './modules/finance/pages/TransactionsPage'
 import { HomePage } from './modules/home/HomePage'
 import { SettingsPage } from './modules/settings/SettingsPage'
+import { WorkPage } from './modules/work/WorkPage'
 import { ListPage } from './modules/shopping/pages/ListPage'
 import { ShoppingHome } from './modules/shopping/pages/ShoppingHome'
 import { ShoppingLayout } from './modules/shopping/ShoppingLayout'
@@ -93,6 +94,14 @@ export function App() {
           <Route path="peso" element={<WeightPage />} />
           <Route path="obiettivi" element={<GoalsPage />} />
         </Route>
+        <Route
+          path="lavoro"
+          element={
+            <ModuleGuard module="work">
+              <WorkPage />
+            </ModuleGuard>
+          }
+        />
         <Route path="impostazioni" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

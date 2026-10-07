@@ -40,3 +40,22 @@ begin
 end $$;
 
 reset role;
+
+-- Unità di misura: serie a tempo e a distanza, esercizi personalizzati a tempo
+select pg_temp.login('mattia@test.it');
+insert into public.workout_sets (session_id, exercise_key, exercise_name, duration_sec)
+select id, 'plank', 'Plank', 60 from public.workout_sessions where name = 'Push';
+insert into public.workout_sets (session_id, exercise_key, exercise_name, weight_kg, distance_m)
+select id, 'farmer-walk', 'Farmer walk', 24, 40 from public.workout_sessions where name = 'Push';
+insert into public.custom_exercises (name, primary_muscles, measure) values ('Plank su fitball', '{abs}', 'time');
+insert into public.user_module_access (user_id, module, enabled) values (auth.uid(), 'work', true);
+do $$ begin
+  assert (select duration_sec from public.workout_sets where exercise_key = 'plank') = 60, 'serie a tempo';
+  assert (select distance_m from public.workout_sets where exercise_key = 'farmer-walk') = 40, 'serie a distanza';
+  begin
+    insert into public.custom_exercises (name, measure) values ('X', 'boh');
+    raise exception 'doveva fallire';
+  exception when check_violation then null;
+  end;
+end $$;
+reset role;

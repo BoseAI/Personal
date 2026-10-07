@@ -153,6 +153,23 @@ export function useDeleteItems() {
   )
 }
 
+/**
+ * Precarica una serie di prodotti già spuntati (pronti da riattivare),
+ * saltando quelli già presenti nella lista. Restituisce quanti ne ha aggiunti.
+ */
+export function usePreloadItems() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ listId, names, existing }: { listId: string; names: string[]; existing: ShoppingItem[] }) => {
+      const have = new Set(existing.filter((i) => i.list_id === listId).map((i) => i.name.trim().toLowerCase()))
+      const rows = names.filter((n) => !have.has(n.toLowerCase())).map((name) => ({ list_id: listId, name, quantity: 1, checked: true }))
+      if (rows.length) unwrap(await supabase.from('shopping_items').insert(rows))
+      return rows.length
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.items }),
+  })
+}
+
 // -----------------------------------------------------------------------------
 // Realtime: modifiche dagli altri membri
 // -----------------------------------------------------------------------------

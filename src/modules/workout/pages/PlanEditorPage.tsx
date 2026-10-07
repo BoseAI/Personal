@@ -14,6 +14,7 @@ import { ExercisePicker } from '../components/ExercisePicker'
 import { FocusCard } from '../components/FocusCard'
 import { allExercises, planFocus, uid } from '../exercises'
 import { startLiveSession } from '../live'
+import { MEASURE_INFO } from '../measures'
 import type { PlanBlock, PlanItem, WorkoutPlan } from '../types'
 
 export function PlanEditorPage() {
@@ -26,7 +27,16 @@ export function PlanEditorPage() {
 }
 
 function newItem(e: Exercise): PlanItem {
-  return { id: uid(), exerciseKey: e.key, exerciseName: e.name, sets: 3, reps: '10', restSec: 90, weightKg: null, setType: 'normal' }
+  return {
+    id: uid(),
+    exerciseKey: e.key,
+    exerciseName: e.name,
+    sets: e.measure === 'cardio' ? 1 : 3,
+    reps: MEASURE_INFO[e.measure].defaultTarget,
+    restSec: e.measure === 'cardio' ? 0 : 90,
+    weightKg: null,
+    setType: 'normal',
+  }
 }
 
 function Editor({ plan }: { plan: WorkoutPlan }) {
@@ -88,7 +98,7 @@ function Editor({ plan }: { plan: WorkoutPlan }) {
 
   async function start() {
     if (dirty) await persist()
-    startLiveSession({ ...plan, name: name.trim() || plan.name, blocks })
+    startLiveSession({ ...plan, name: name.trim() || plan.name, blocks }, exercises)
     navigate('/allenamento/live')
   }
 

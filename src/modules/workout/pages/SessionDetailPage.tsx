@@ -8,7 +8,8 @@ import { useCustomExercises, useDeleteSession, useSession } from '../api'
 import { CardioSheet } from '../components/CardioSheet'
 import { FocusCard } from '../components/FocusCard'
 import { SessionIcon } from '../components/SessionIcon'
-import { allExercises, estimated1RM, setsFocus } from '../exercises'
+import { allExercises, estimated1RM, measureOf, setsFocus } from '../exercises'
+import { formatSet } from '../measures'
 import { formatDistance, formatDuration, formatPace, formatSessionDate } from '../format'
 import { SESSION_LABELS, type WorkoutSet } from '../types'
 
@@ -30,7 +31,7 @@ export function SessionDetailPage() {
   if (isLoading) return <PageLoader />
   if (!data) return <Navigate to="/allenamento/attivita" replace />
   const { session, sets } = data
-  const volume = sets.reduce((s, x) => s + (x.weight_kg ?? 0) * (x.reps ?? 0), 0)
+  const volume = sets.reduce((s, x) => s + (x.weight_kg ?? 0) * (x.reps ?? 0), 0) // le serie a tempo/distanza hanno reps nulle
 
   async function remove() {
     if (!confirm('Eliminare questa attività?')) return
@@ -87,7 +88,8 @@ export function SessionDetailPage() {
             <SectionTitle>Esercizi</SectionTitle>
             <div className="space-y-2">
               {groups.map((g) => {
-                const best = Math.max(...g.map((s) => estimated1RM(s.weight_kg ?? 0, s.reps ?? 0)))
+                const measure = measureOf(g[0].exercise_key, exercises)
+                const best = measure === 'reps' ? Math.max(...g.map((s) => estimated1RM(s.weight_kg ?? 0, s.reps ?? 0))) : 0
                 return (
                   <Card key={g[0].block_index + g[0].exercise_key} className="p-3">
                     <div className="flex items-baseline justify-between gap-2">
@@ -97,7 +99,7 @@ export function SessionDetailPage() {
                     <div className="num mt-2 flex flex-wrap gap-1.5 text-xs">
                       {g.map((s) => (
                         <span key={s.id} className="rounded-lg bg-surface-2 px-2 py-1">
-                          {s.weight_kg ?? 0} kg × {s.reps ?? 0}
+                          {formatSet(measure, s)}
                         </span>
                       ))}
                     </div>

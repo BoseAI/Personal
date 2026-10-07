@@ -1,4 +1,4 @@
-import { CATALOG, type Exercise } from './catalog'
+import { CATALOG, type Exercise, type Measure } from './catalog'
 import { GROUP_COLORS, MUSCLE_GROUPS, MUSCLES, type Muscle, type MuscleGroup } from './muscles'
 import type { CustomExercise, PlanBlock } from './types'
 
@@ -10,6 +10,7 @@ export function customToExercise(c: CustomExercise): Exercise {
     secondary: c.secondary_muscles.filter((m): m is Muscle => m in MUSCLES),
     equipment: c.equipment ?? 'Personalizzato',
     category: 'gym',
+    measure: c.measure ?? 'reps',
     custom: true,
   }
 }
@@ -20,6 +21,10 @@ export function allExercises(custom: CustomExercise[]): Exercise[] {
 
 export function findExercise(key: string, list: Exercise[]): Exercise | undefined {
   return list.find((e) => e.key === key)
+}
+
+export function measureOf(key: string, list: Exercise[]): Measure {
+  return findExercise(key, list)?.measure ?? 'reps'
 }
 
 /** Punteggio di pertinenza rispetto ai muscoli cercati: primario 2, secondario 1. */

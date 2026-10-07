@@ -3,9 +3,12 @@ import { lazy, Suspense, useMemo, useState } from 'react'
 import { Card, EmptyState, SectionTitle } from '../../../components/ui/Card'
 import { Segmented } from '../../../components/ui/Segmented'
 import { cn } from '../../../lib/cn'
-import { useExerciseHistory, useSessions, useTrainedExercises } from '../api'
+import { useCustomExercises, useExerciseHistory, useSessions, useTrainedExercises } from '../api'
 import { SESSION_COLORS } from '../components/SessionIcon'
-import { estimated1RM } from '../exercises'
+import { allExercises, estimated1RM, measureOf } from '../exercises'
+import { formatSeconds, formatSet } from '../measures'
+import type { Measure } from '../catalog'
+import type { WorkoutSet } from '../types'
 import { addDays, weekStart } from '../format'
 
 const charts = () => import('../components/WorkoutCharts')
@@ -13,6 +16,26 @@ const ProgressLine = lazy(() => charts().then((m) => ({ default: m.ProgressLine 
 const WeeklyBars = lazy(() => charts().then((m) => ({ default: m.WeeklyBars })))
 
 const shortDate = new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short' })
+
+/** Cosa misura il progresso per ogni unità: forza, tenuta, distanza o resistenza. */
+const METRICS: Record<Measure, { label: string; unit: string; note: string; value: (s: WorkoutSet) => number; format: (v: number) => string }> = {
+  reps: {
+    label: 'Massimale stimato (1RM)',
+    unit: 'kg',
+    note: 'Stima con la formula di Epley sulla serie migliore di ogni allenamento.',
+    value: (s) => estimated1RM(s.weight_kg ?? 0, s.reps ?? 0),
+    format: (v) => `${v} kg`,
+  },
+  time: { label: 'Tenuta migliore', unit: 's', note: 'Serie più lunga di ogni allenamento.', value: (s) => s.duration_sec ?? 0, format: (v) => formatSeconds(Math.round(v)) },
+  distance: { label: 'Distanza migliore', unit: 'm', note: 'Serie più lunga di ogni allenamento.', value: (s) => s.distance_m ?? 0, format: (v) => `${v} m` },
+  cardio: {
+    label: 'Distanza',
+    unit: 'km',
+    note: 'Distanza della serie più lunga di ogni allenamento.',
+    value: (s) => (s.distance_m ?? 0) / 1000,
+    format: (v) => `${v.toLocaleString('it-IT', { maximumFractionDigits: 2 })} km`,
+  },
+}
 
 export function ProgressPage() {
   const [tab, setTab] = useState<'strength' | 'cardio'>('strength')
@@ -38,18 +61,20 @@ function StrengthProgress() {
   const [q, setQ] = useState('')
   const selected = key ?? trained[0]?.key ?? null
   const { data } = useExerciseHistory(selected)
+  const { data: custom = [] } = useCustomExercises()
+  const measure = useMemo(() => (selected ? measureOf(selected, allExercises(custom)) : 'reps'), [selected, custom])
+  const metric = METRICS[measure]
 
   const points = useMemo(() => {
     if (!data) return []
     return data.sessions
       .map((s) => {
         const sets = data.sets.filter((x) => x.session_id === s.id)
-        const best = Math.max(...sets.map((x) => estimated1RM(x.weight_kg ?? 0, x.reps ?? 0)))
-        const top = sets.reduce((a, b) => ((b.weight_kg ?? 0) > (a.weight_kg ?? 0) ? b : a), sets[0])
-        return { date: s.started_at, label: shortDate.format(new Date(s.started_at)), value: Math.round(best * 10) / 10, sub: `Miglior serie ${top?.weight_kg ?? 0} kg × ${top?.reps ?? 0}` }
+        const top = sets.reduce((a, b) => (metric.value(b) > metric.value(a) ? b : a), sets[0])
+        return { date: s.started_at, label: shortDate.format(new Date(s.started_at)), value: Math.round(metric.value(top) * 10) / 10, sub: `Miglior serie ${formatSet(measure, top)}` }
       })
       .sort((a, b) => a.date.localeCompare(b.date))
-  }, [data])
+  }, [data, metric, measure])
 
   if (!trained.length) return <EmptyState icon={<TrendingUp className="size-6" />} title="Ancora nessun dato">Completa un allenamento per vedere i progressi.</EmptyState>
 
@@ -79,20 +104,20 @@ function StrengthProgress() {
         <Card className="space-y-3 p-4">
           <div className="flex items-end justify-between">
             <div>
-              <p className="font-mono text-[10px] tracking-[0.12em] text-faint uppercase">Massimale stimato (1RM)</p>
-              <p className="num text-2xl font-semibold">{lastP} kg</p>
+              <p className="font-mono text-[10px] tracking-[0.12em] text-faint uppercase">{metric.label}</p>
+              <p className="num text-2xl font-semibold">{metric.format(lastP)}</p>
             </div>
             {points.length > 1 && (
               <span className={cn('num text-sm font-medium', lastP >= first ? 'text-positive' : 'text-negative')}>
-                {lastP >= first ? '+' : ''}
-                {Math.round((lastP - first) * 10) / 10} kg
+                {lastP >= first ? '+' : '−'}
+                {metric.format(Math.abs(Math.round((lastP - first) * 10) / 10))}
               </span>
             )}
           </div>
           <Suspense fallback={<div className="h-52" />}>
-            <ProgressLine data={points} unit="kg" color="#fb923c" />
+            <ProgressLine data={points} unit={metric.unit} color="#fb923c" />
           </Suspense>
-          <p className="text-[11px] text-faint">Stima con la formula di Epley sulla serie migliore di ogni allenamento.</p>
+          <p className="text-[11px] text-faint">{metric.note}</p>
         </Card>
       )}
     </div>

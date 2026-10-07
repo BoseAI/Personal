@@ -7,9 +7,10 @@ import { Sheet } from '../../../components/ui/Sheet'
 import { cn } from '../../../lib/cn'
 import { errorMessage } from '../../../lib/supabase'
 import { useCustomExercises, useSaveCustomExercise } from '../api'
-import type { Exercise, ExerciseCategory } from '../catalog'
+import type { Exercise, ExerciseCategory, Measure } from '../catalog'
 import { allExercises, customToExercise, matchScore } from '../exercises'
 import { GROUP_COLORS, MUSCLE_GROUPS, MUSCLES, type Muscle } from '../muscles'
+import { MEASURE_INFO } from '../measures'
 import { MuscleTags } from './MuscleTags'
 
 type CategoryFilter = 'all' | ExerciseCategory
@@ -126,7 +127,10 @@ function PickerBody({ onClose, onPick }: { onClose: () => void; onPick: (list: E
                   </span>
                   <MuscleTags exercise={e} />
                 </span>
-                <span className="shrink-0 text-[11px] text-faint">{e.equipment}</span>
+                <span className="shrink-0 text-right text-[11px] text-faint">
+                  {e.equipment}
+                  {e.measure !== 'reps' && <span className="block text-accent">{MEASURE_INFO[e.measure].label.toLowerCase()}</span>}
+                </span>
               </button>
             )
           })}
@@ -164,6 +168,7 @@ function CustomExerciseForm({ onClose, onCreated, defaultName }: { onClose: () =
   const [equipment, setEquipment] = useState('')
   const [primary, setPrimary] = useState<Muscle[]>([])
   const [secondary, setSecondary] = useState<Muscle[]>([])
+  const [measure, setMeasure] = useState<Measure>('reps')
   const [error, setError] = useState<string | null>(null)
 
   const cycle = (m: Muscle) => {
@@ -178,7 +183,7 @@ function CustomExerciseForm({ onClose, onCreated, defaultName }: { onClose: () =
     if (!name.trim()) return setError('Inserisci un nome.')
     if (!primary.length) return setError('Scegli almeno un muscolo principale.')
     try {
-      const c = await save.mutateAsync({ name: name.trim(), equipment: equipment.trim() || null, primary_muscles: primary, secondary_muscles: secondary })
+      const c = await save.mutateAsync({ name: name.trim(), equipment: equipment.trim() || null, primary_muscles: primary, secondary_muscles: secondary, measure })
       onCreated(customToExercise(c))
       onClose()
     } catch (err) {
@@ -203,6 +208,15 @@ function CustomExerciseForm({ onClose, onCreated, defaultName }: { onClose: () =
         </Field>
         <Field label="Attrezzo">
           <Input value={equipment} onChange={(e) => setEquipment(e.target.value)} placeholder="Opzionale" />
+        </Field>
+        <Field label="Come si misura">
+          <Segmented
+            size="sm"
+            className="w-full"
+            value={measure}
+            onChange={setMeasure}
+            options={(Object.keys(MEASURE_INFO) as Measure[]).map((m) => ({ value: m, label: MEASURE_INFO[m].label }))}
+          />
         </Field>
         <Field label="Muscoli" hint="Un tocco: principale · due tocchi: secondario · tre: rimuovi">
           <div className="flex flex-wrap gap-1.5">

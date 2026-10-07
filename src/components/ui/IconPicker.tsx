@@ -19,7 +19,8 @@ export function IconPicker({
   const [q, setQ] = useState('')
   const groups = useMemo(() => {
     const s = q.trim().toLowerCase()
-    if (!s) return [...ICON_GROUPS].sort((a, b) => Number(preferGroups.includes(b.label)) - Number(preferGroups.includes(a.label)))
+    const rank = (label: string) => (preferGroups.includes(label) ? preferGroups.indexOf(label) : preferGroups.length)
+    if (!s) return [...ICON_GROUPS].sort((a, b) => rank(a.label) - rank(b.label))
     return [{ label: 'Risultati', icons: Object.keys(ICONS).filter((n) => n.includes(s)) }]
   }, [q, preferGroups])
 

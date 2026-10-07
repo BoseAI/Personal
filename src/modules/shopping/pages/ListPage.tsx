@@ -1,4 +1,4 @@
-import { ChevronLeft, Eye, Plus, Search, Settings2, Users, X } from 'lucide-react'
+import { ChevronDown, ChevronLeft, Eye, Plus, RotateCcw, Search, Settings2, Users, X } from 'lucide-react'
 import { useMemo, useState, type FormEvent } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { Button, IconButton } from '../../../components/ui/Button'
@@ -27,6 +27,7 @@ export function ListPage() {
   const [searching, setSearching] = useState(false)
   const [settings, setSettings] = useState(false)
   const [editing, setEditing] = useState<ShoppingItem | undefined>()
+  const [showDone, setShowDone] = useState(false)
 
   const list = lists?.find((l) => l.id === listId)
   const items = useMemo(() => allItems.filter((i) => i.list_id === listId), [allItems, listId])
@@ -43,6 +44,16 @@ export function ListPage() {
   const open = separated ? visible.filter((i) => !i.checked) : visible
   const done = separated ? visible.filter((i) => i.checked) : []
   const checkedCount = items.filter((i) => i.checked).length
+  // Molti spuntati (es. prodotti precaricati): la sezione parte chiusa.
+  const doneOpen = showDone || query.trim() !== '' || done.length <= 12
+  // Suggerimenti mentre scrivi: elementi già presi da rimettere in lista.
+  const typed = name.trim().toLowerCase()
+  const suggestions = typed
+    ? items
+        .filter((i) => i.checked && i.name.toLowerCase().includes(typed))
+        .sort((a, b) => Number(!a.name.toLowerCase().startsWith(typed)) - Number(!b.name.toLowerCase().startsWith(typed)) || a.name.localeCompare(b.name, 'it'))
+        .slice(0, 6)
+    : []
 
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -120,6 +131,24 @@ export function ListPage() {
         </form>
       )}
 
+      {suggestions.length > 0 && (
+        <div className="-mt-2 flex flex-wrap gap-1.5">
+          {suggestions.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => {
+                toggle(s, list)
+                setName('')
+              }}
+              className="flex items-center gap-1 rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-muted transition hover:text-fg"
+            >
+              <RotateCcw className="size-3.5" /> {s.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {open.length > 0 && <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">{open.map(row)}</div>}
 
       {!open.length && !done.length && (
@@ -135,15 +164,24 @@ export function ListPage() {
           <SectionTitle
             action={
               canEdit && (
-                <Button size="sm" variant="ghost" onClick={() => clearChecked(items)}>
+                <Button size="sm" variant="ghost" onClick={() => (done.length <= 10 || confirm(`Eliminare tutti i ${done.length} elementi presi?`)) && clearChecked(items)}>
                   Svuota
                 </Button>
               )
             }
           >
-            Presi · {done.length}
+            <button type="button" onClick={() => setShowDone((v) => !v)} className="flex items-center gap-1 hover:text-muted">
+              Presi · {done.length}
+              <ChevronDown className={`size-3.5 transition ${doneOpen ? 'rotate-180' : ''}`} />
+            </button>
           </SectionTitle>
-          <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface opacity-80">{done.map(row)}</div>
+          {doneOpen ? (
+            <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface opacity-80">{done.map(row)}</div>
+          ) : (
+            <button type="button" onClick={() => setShowDone(true)} className="w-full rounded-2xl border border-dashed border-line py-3 text-sm text-faint hover:text-muted">
+              Mostra i {done.length} elementi presi
+            </button>
+          )}
         </section>
       )}
 

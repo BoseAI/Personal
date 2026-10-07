@@ -5,6 +5,7 @@ import { Segmented } from '../../../components/ui/Segmented'
 import { cn } from '../../../lib/cn'
 import type { Exercise } from '../catalog'
 import { findExercise } from '../exercises'
+import { MEASURE_INFO } from '../measures'
 import { BLOCK_LABELS, SET_TYPE_LABELS, type BlockKind, type PlanBlock, type PlanItem, type SetType } from '../types'
 import { MuscleTags } from './MuscleTags'
 
@@ -102,6 +103,8 @@ export function BlockEditor({
       <div className="divide-y divide-line">
         {block.items.map((it, i) => {
           const ex = findExercise(it.exerciseKey, exercises)
+          const measure = ex?.measure ?? 'reps'
+          const withKg = measure === 'reps' || measure === 'distance'
           return (
             <div key={it.id} className="space-y-2 px-3 py-3">
               <div className="flex items-start gap-2">
@@ -122,19 +125,31 @@ export function BlockEditor({
                   </label>
                 )}
                 <label className="space-y-1">
-                  <span className="text-faint">Ripetizioni</span>
-                  <input className={numberField} value={it.reps} placeholder="10" onChange={(e) => setItem(it.id, { reps: e.target.value.slice(0, 12) })} />
-                </label>
-                <label className="space-y-1">
-                  <span className="text-faint">Carico kg</span>
+                  <span className="text-faint">{MEASURE_INFO[measure].target}</span>
                   <input
-                    inputMode="decimal"
                     className={numberField}
-                    value={it.weightKg ?? ''}
-                    placeholder="—"
-                    onChange={(e) => setItem(it.id, { weightKg: parseDecimal(e.target.value) })}
+                    value={it.reps}
+                    placeholder={MEASURE_INFO[measure].defaultTarget}
+                    onChange={(e) => setItem(it.id, { reps: e.target.value.slice(0, 12) })}
                   />
                 </label>
+                {withKg ? (
+                  <label className="space-y-1">
+                    <span className="text-faint">Carico kg</span>
+                    <input
+                      inputMode="decimal"
+                      className={numberField}
+                      value={it.weightKg ?? ''}
+                      placeholder="—"
+                      onChange={(e) => setItem(it.id, { weightKg: parseDecimal(e.target.value) })}
+                    />
+                  </label>
+                ) : (
+                  <span className="space-y-1">
+                    <span className="block text-faint">Misura</span>
+                    <span className="flex h-9 items-center justify-center rounded-lg border border-dashed border-line text-faint">{MEASURE_INFO[measure].label}</span>
+                  </span>
+                )}
                 {block.kind === 'single' && (
                   <label className="space-y-1">
                     <span className="text-faint">Recupero s</span>

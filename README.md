@@ -36,12 +36,13 @@ supabase/
 
 - Ogni utente crea le sue **liste** (Alimentari, Materiale casa…) con icona e colore e può condividerle con altri utenti, ognuno con il suo ruolo (`owner` / `editor` / `viewer`).
 - Elementi: nome + quantità (default 1). Aggiungere un elemento già presente ne aumenta la quantità, o lo rimette in lista se era spuntato.
+- **Precarica prodotti comuni** (impostazioni della lista): ~130 alimentari già spuntati, riattivabili dai suggerimenti mentre scrivi.
 - Per ogni lista si sceglie cosa succede agli spuntati: **in fondo**, **restano** al loro posto o **eliminati** (con *Annulla*).
 - Ricerca su tutte le liste e dentro la singola lista; aggiornamenti in tempo reale tra i membri.
 
 ## Allenamento
 
-- **Catalogo** di ~190 esercizi (`workout/catalog.ts`) con muscoli primari/secondari; ricerca per muscolo con ordinamento per pertinenza; esercizi personalizzati.
+- **Catalogo** di ~190 esercizi (`workout/catalog.ts`) con muscoli primari/secondari e unità di misura (ripetizioni, tempo, distanza, cardio); ricerca per muscolo con ordinamento per pertinenza; esercizi personalizzati.
 - **Schede** (`workout_plans.blocks`, JSON): blocchi singoli, superserie e circuiti; tipo di serie (normale, drop set, piramidale, rest-pause). Il *focus* pesa 1 per serie sui muscoli primari e 0,5 sui secondari.
 - **Allenamento live** salvato in `localStorage` fino al termine: carichi precompilati dall'ultima sessione, timer di recupero (a fine giro per superserie/circuiti).
 - **Corsa e nuoto** registrati a mano (un'app web non può leggere Salute/Apple Watch), riepilogo settimanale e progressi (1RM stimato con Epley).
@@ -52,6 +53,10 @@ supabase/
 - **Obiettivi**: Mifflin-St Jeor × attività quotidiana (sport escluso), −20% / +10% per dimagrire / massa; proteine e grassi in g/kg, carboidrati per differenza, acqua 35 ml/kg. Nei giorni di allenamento si aggiungono le kcal stimate (MET × peso × ore) e 500 ml d'acqua per ora. Ogni valore si può correggere a mano.
 - **Valutazione del giorno** (0-100): calorie 35, proteine 25, acqua 20, equilibrio carboidrati/grassi 10, movimento 10.
 - **Peso**: pesate con media mobile a 7 giorni e peso obiettivo.
+
+## Lavoro
+
+Calcolatore dell'uscita (`work/workTime.ts`, test con `npm test`): entrata + ore dovute + pausa; lo straordinario matura dopo 30 minuti e poi a blocchi di 15, quindi indica gli orari in cui uscire senza regalare minuti. Regole modificabili, dati salvati solo sul telefono.
 
 ## Amministratore e sezioni
 

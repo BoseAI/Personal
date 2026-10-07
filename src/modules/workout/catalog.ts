@@ -2,6 +2,15 @@ import type { Muscle } from './muscles'
 
 export type ExerciseCategory = 'gym' | 'crossfit' | 'corpo libero'
 
+/**
+ * Come si misura un esercizio:
+ * - reps: carico (kg, opzionale) × ripetizioni
+ * - time: durata in secondi (es. plank)
+ * - distance: metri percorsi, con carico opzionale (es. farmer walk)
+ * - cardio: durata in minuti + distanza in km (macchine cardio, camminata)
+ */
+export type Measure = 'reps' | 'time' | 'distance' | 'cardio'
+
 export type Exercise = {
   key: string
   name: string
@@ -9,7 +18,34 @@ export type Exercise = {
   secondary: Muscle[]
   equipment: string
   category: ExerciseCategory
+  measure: Measure
   custom?: boolean
+}
+
+// Esercizi che non si misurano a ripetizioni.
+const MEASURES: Record<string, Measure> = {
+  plank: 'time',
+  'plank-laterale': 'time',
+  'hollow-hold': 'time',
+  'l-sit': 'time',
+  'wall-sit': 'time',
+  'mountain-climber': 'time',
+  'battle-rope': 'time',
+  'saltelli-con-la-corda': 'time',
+  'dead-hang-sospensione-alla-sbarra': 'time',
+  'farmer-walk': 'distance',
+  'sled-push': 'distance',
+  'handstand-walk': 'distance',
+  'shuttle-run': 'distance',
+  'vogatore-row': 'cardio',
+  'assault-bike': 'cardio',
+  cyclette: 'cardio',
+  'tapis-roulant': 'cardio',
+  ellittica: 'cardio',
+  skierg: 'cardio',
+  'stair-climber': 'cardio',
+  camminata: 'cardio',
+  'camminata-in-salita-tapis-roulant': 'cardio',
 }
 
 const e = (key: string, name: string, primary: Muscle[], secondary: Muscle[], equipment: string, category: ExerciseCategory): Exercise => ({
@@ -19,6 +55,7 @@ const e = (key: string, name: string, primary: Muscle[], secondary: Muscle[], eq
   secondary,
   equipment,
   category,
+  measure: MEASURES[key] ?? 'reps',
 })
 
 /** Catalogo base: palestra, CrossFit e corpo libero con muscoli primari e secondari. */
@@ -213,5 +250,8 @@ export const CATALOG: Exercise[] = [
   e('tapis-roulant', 'Tapis roulant', ['cardio'], ['quads', 'calves', 'hamstrings'], 'Tapis roulant', 'gym'),
   e('ellittica', 'Ellittica', ['cardio'], ['quads', 'glutes'], 'Ellittica', 'gym'),
   e('skierg', 'SkiErg', ['cardio'], ['lats', 'triceps', 'abs'], 'SkiErg', 'crossfit'),
+  e('camminata', 'Camminata', ['cardio'], ['calves', 'glutes'], 'Corpo libero', 'corpo libero'),
+  e('camminata-in-salita-tapis-roulant', 'Camminata in salita (tapis roulant)', ['cardio'], ['glutes', 'calves', 'hamstrings'], 'Tapis roulant', 'gym'),
+  e('dead-hang-sospensione-alla-sbarra', 'Dead hang (sospensione alla sbarra)', ['forearms'], ['lats', 'upper_back'], 'Sbarra', 'corpo libero'),
   e('stair-climber', 'Stair climber', ['cardio'], ['glutes', 'quads', 'calves'], 'Macchina', 'gym'),
 ]

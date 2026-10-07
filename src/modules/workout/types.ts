@@ -58,6 +58,7 @@ export type WorkoutSet = {
   weight_kg: number | null
   reps: number | null
   duration_sec: number | null
+  distance_m: number | null
   created_at: string
 }
 
@@ -67,6 +68,7 @@ export type CustomExercise = {
   primary_muscles: string[]
   secondary_muscles: string[]
   equipment: string | null
+  measure: 'reps' | 'time' | 'distance' | 'cardio'
 }
 
 export const BLOCK_LABELS: Record<BlockKind, { label: string; hint: string }> = {

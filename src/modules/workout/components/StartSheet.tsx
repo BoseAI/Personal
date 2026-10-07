@@ -1,7 +1,9 @@
 import { ChevronRight, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Sheet } from '../../../components/ui/Sheet'
-import { usePlans } from '../api'
+import { useMemo } from 'react'
+import { useCustomExercises, usePlans } from '../api'
+import { allExercises } from '../exercises'
 import { startLiveSession, useLiveSession } from '../live'
 
 /** Scegli la scheda da cui partire (o un allenamento libero). */
@@ -9,10 +11,12 @@ export function StartSheet({ open, onClose }: { open: boolean; onClose: () => vo
   const navigate = useNavigate()
   const { data: plans = [] } = usePlans()
   const live = useLiveSession()
+  const { data: custom = [] } = useCustomExercises()
+  const exercises = useMemo(() => allExercises(custom), [custom])
 
   function start(planId: string | null) {
     if (live && !confirm('C\'è già un allenamento in corso: sostituirlo?')) return
-    startLiveSession(plans.find((p) => p.id === planId) ?? null)
+    startLiveSession(plans.find((p) => p.id === planId) ?? null, exercises)
     onClose()
     navigate('/allenamento/live')
   }

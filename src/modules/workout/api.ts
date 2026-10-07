@@ -70,7 +70,7 @@ export function useDeletePlan() {
 // Sessioni
 // -----------------------------------------------------------------------------
 const normSession = (s: WorkoutSession): WorkoutSession => ({ ...s, distance_m: num(s.distance_m) })
-const normSet = (s: WorkoutSet): WorkoutSet => ({ ...s, weight_kg: num(s.weight_kg) })
+const normSet = (s: WorkoutSet): WorkoutSet => ({ ...s, weight_kg: num(s.weight_kg), distance_m: num(s.distance_m) })
 
 /** Sessioni nell'intervallo [from, to) (timestamp ISO). */
 export function useSessions(from: string, to: string) {
@@ -109,7 +109,7 @@ export function useSession(id: string | undefined) {
 }
 
 export type SessionInput = Omit<WorkoutSession, 'id'> & { id?: string }
-export type SetInput = Pick<WorkoutSet, 'exercise_key' | 'exercise_name' | 'block_index' | 'set_index' | 'weight_kg' | 'reps' | 'duration_sec'>
+export type SetInput = Pick<WorkoutSet, 'exercise_key' | 'exercise_name' | 'block_index' | 'set_index' | 'weight_kg' | 'reps' | 'duration_sec' | 'distance_m'>
 
 export function useSaveSession() {
   const qc = useQueryClient()
