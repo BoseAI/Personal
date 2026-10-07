@@ -146,6 +146,15 @@ export function useUpdateItem() {
   )
 }
 
+/** Spunta (o toglie la spunta a) più elementi in una sola richiesta. */
+export function useSetChecked() {
+  return useItemMutation(
+    async ({ ids, checked }: { ids: string[]; checked: boolean }) =>
+      unwrap(await supabase.from('shopping_items').update({ checked }).in('id', ids)),
+    (items, v) => items.map((i) => (v.ids.includes(i.id) ? { ...i, checked: v.checked, checked_at: v.checked ? new Date().toISOString() : null } : i)),
+  )
+}
+
 export function useDeleteItems() {
   return useItemMutation(
     async (ids: string[]) => unwrap(await supabase.from('shopping_items').delete().in('id', ids)),

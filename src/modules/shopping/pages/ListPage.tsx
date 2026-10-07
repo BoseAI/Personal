@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, Eye, Plus, RotateCcw, Search, Settings2, Users, X } from 'lucide-react'
+import { CheckCheck, ChevronDown, ChevronLeft, Eye, Plus, RotateCcw, Search, Settings2, Users, X } from 'lucide-react'
 import { useMemo, useState, type FormEvent } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { Button, IconButton } from '../../../components/ui/Button'
@@ -18,7 +18,7 @@ export function ListPage() {
   const { listId } = useParams()
   const { data: lists, isLoading } = useShoppingLists()
   const { data: allItems = [] } = useAllItems()
-  const { toggle, addOrMerge, clearChecked } = useItemActions()
+  const { toggle, addOrMerge, clearChecked, checkAll } = useItemActions()
   const toast = useToast()
 
   const [name, setName] = useState('')
@@ -44,6 +44,7 @@ export function ListPage() {
   const open = separated ? visible.filter((i) => !i.checked) : visible
   const done = separated ? visible.filter((i) => i.checked) : []
   const checkedCount = items.filter((i) => i.checked).length
+  const toBuy = items.filter((i) => !i.checked)
   // Molti spuntati (es. prodotti precaricati): la sezione parte chiusa.
   const doneOpen = showDone || query.trim() !== '' || done.length <= 12
   // Suggerimenti mentre scrivi: elementi già presi da rimettere in lista.
@@ -146,6 +147,14 @@ export function ListPage() {
               <RotateCcw className="size-3.5" /> {s.name}
             </button>
           ))}
+        </div>
+      )}
+
+      {canEdit && toBuy.length > 1 && !query.trim() && (
+        <div className="-mb-2 flex justify-end">
+          <Button size="sm" variant="ghost" onClick={() => confirm(`Spuntare tutti i ${toBuy.length} elementi da prendere?`) && checkAll(items, list)}>
+            <CheckCheck className="size-4" /> Spunta tutti
+          </Button>
         </div>
       )}
 
