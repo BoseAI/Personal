@@ -3,7 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-/* Layout: one-screen app — header, scrolling panel, input/tab bar pinned at the bottom */
+/* Layout: one-screen app — header, tabs, scrolling panel, chat composer pinned at the bottom */
 :root {
   --bg: #f3f5fa;
   --surface: #ffffff;
@@ -46,18 +46,61 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .level { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
 .level select { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
 
-nav.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
-nav.tabs button { background: none; border: 0; padding: 10px 14px; font-weight: 700; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; }
+nav.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+nav.tabs button { flex: none; background: none; border: 0; padding: 10px 12px; font-weight: 700; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; }
 nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
 
 main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .panel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .scroll { flex: 1; min-height: 0; overflow-y: auto; padding-block: 16px; display: flex; flex-direction: column; gap: 14px; }
 
+h2 { font-family: var(--f-display); font-weight: 800; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+.eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .09em; font-weight: 700; color: var(--muted); }
+
+/* Path (progress) */
+.path { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat { display: flex; flex-direction: column; }
+.stat b { font-family: var(--f-display); font-size: 1.5rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stat span { font-size: .78rem; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-size: .82rem; padding: 3px 10px; border-radius: 999px; background: var(--bad-soft); }
+.pill.int { background: var(--accent-soft); }
+.summary { margin: 0; font-size: .93rem; }
+details.goals summary { cursor: pointer; font-weight: 700; font-size: .92rem; color: var(--accent); }
+.goals-box { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.goals-box textarea { border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; resize: vertical; min-height: 70px; }
+
+/* Lesson */
+.lesson-cta { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.lesson { display: flex; flex-direction: column; gap: 18px; }
+.lesson h2 { font-size: 1.6rem; }
+.lesson .intro { font-size: 1.02rem; margin: 0; max-width: 65ch; }
+.block { display: flex; flex-direction: column; gap: 8px; }
+.block h3 { font-family: var(--f-display); margin: 0; font-size: 1.15rem; }
+.block p { margin: 0; white-space: pre-wrap; max-width: 65ch; }
+.ex { display: flex; flex-direction: column; gap: 6px; border-left: 3px solid var(--mark); padding-left: 12px; }
+.ex div { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.ex .it, .tr { color: var(--muted); font-size: .92rem; }
+.wordgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+.wcard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.wcard .top { display: flex; justify-content: space-between; gap: 6px; align-items: baseline; }
+.wcard b { font-size: 1.05rem; overflow-wrap: anywhere; }
+.wcard i { font-size: .88rem; color: var(--muted); }
+.dialog { display: flex; flex-direction: column; gap: 8px; }
+.line { display: grid; grid-template-columns: 4.5em 1fr; gap: 8px; }
+.line .who { font-weight: 700; color: var(--accent); font-size: .9rem; }
+.tip { background: var(--mark-soft); border-radius: 12px; padding: 10px 14px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.archive { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+.archive button { width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 9px 2px; display: flex; justify-content: space-between; gap: 10px; }
+.archive .d { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; flex: none; }
+
 /* Chat */
 .scenarios { display: flex; gap: 6px; overflow-x: auto; padding-block: 12px 2px; scrollbar-width: none; }
 .chip { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: .88rem; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip.lesson-chip { border-color: var(--mark); }
 .msg { max-width: 88%; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .msg.me { align-self: flex-end; }
 .bubble { padding: 10px 14px; border-radius: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -65,8 +108,9 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .msg.me .bubble { background: var(--accent); color: var(--bg); border-bottom-right-radius: 4px; }
 .tools { display: flex; gap: 6px; }
 .mini { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 2px 8px; font-size: .8rem; color: var(--muted); }
+.mini.on { background: var(--good-soft); color: var(--good); border-color: var(--good); }
+.notes { display: flex; flex-direction: column; gap: 6px; }
 .fix { background: var(--mark-soft); border-radius: 10px; padding: 8px 12px; font-size: .9rem; display: flex; flex-direction: column; gap: 4px; }
-.fix .label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--muted); }
 .fix.ok { background: var(--good-soft); }
 .useful { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .9rem; }
 .thinking { color: var(--muted); font-style: italic; }
@@ -75,11 +119,12 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .btn { border: 0; background: var(--accent); color: var(--bg); font-weight: 700; border-radius: 12px; padding: 10px 16px; }
 .btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
 .btn:disabled { opacity: .5; cursor: default; }
-.hint { font-size: .8rem; color: var(--muted); margin: 0; }
+.hint { font-size: .85rem; color: var(--muted); margin: 0; }
 
 /* Quiz */
 .quiz-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .quiz-controls select { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; flex: 1; min-width: 0; }
+#quiz { display: flex; flex-direction: column; gap: 12px; }
 .q { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .q h3 { margin: 0; font-size: 1.02rem; text-wrap: balance; }
 .q .num { font-family: var(--f-display); color: var(--muted); font-size: .8rem; letter-spacing: .06em; }
@@ -96,13 +141,14 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .addword { display: flex; gap: 8px; flex-wrap: wrap; }
 .addword input { flex: 1 1 140px; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 9px 12px; }
 .words { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.words li { display: flex; align-items: center; gap: 10px; padding: 10px 2px; border-bottom: 1px solid var(--line); }
+.words li { display: flex; align-items: center; gap: 8px; padding: 10px 2px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .words .en { font-weight: 700; }
-.words .it { color: var(--muted); flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.words .it { color: var(--muted); flex: 1; min-width: 6em; overflow-wrap: anywhere; }
+.words li.known .en { color: var(--good); }
 .empty { color: var(--muted); text-align: center; padding: 30px 10px; }
 .notice { background: var(--accent-soft); border-radius: 12px; padding: 10px 14px; font-size: .9rem; }
-.flash { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; font-size: .9rem; }
-@media (prefers-reduced-motion: no-preference) { .msg { animation: up .2s ease-out; } @keyframes up { from { transform: translateY(6px); opacity: .6 } } }
+.flash { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; font-size: .9rem; z-index: 5; }
+@media (prefers-reduced-motion: no-preference) { .msg, .lesson { animation: up .25s ease-out; } @keyframes up { from { transform: translateY(6px); opacity: .6 } } }
 </style>
 
 <div class="app">
@@ -120,39 +166,57 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   </header>
 
   <nav class="tabs" role="tablist">
-    <button role="tab" id="tab-chat" aria-selected="true" data-panel="chat">Conversazione</button>
-    <button role="tab" id="tab-quiz" aria-selected="false" data-panel="quiz">Esercizi</button>
-    <button role="tab" id="tab-words" aria-selected="false" data-panel="words">Le mie parole</button>
+    <button role="tab" aria-selected="true" data-panel="lesson">Lezione</button>
+    <button role="tab" aria-selected="false" data-panel="chat">Conversazione</button>
+    <button role="tab" aria-selected="false" data-panel="words">Parole</button>
+    <button role="tab" aria-selected="false" data-panel="quiz">Esercizi</button>
   </nav>
 
   <main>
+    <!-- LESSON -->
+    <section class="panel" id="panel-lesson">
+      <div class="scroll" id="lessonscroll">
+        <div class="path" id="path">
+          <div class="eyebrow">Il tuo percorso</div>
+          <div class="stats">
+            <div class="stat"><b id="st-streak">0</b><span>giorni di fila</span></div>
+            <div class="stat"><b id="st-lessons">0</b><span>lezioni fatte</span></div>
+            <div class="stat"><b id="st-words">0</b><span>parole imparate</span></div>
+          </div>
+          <p class="summary" id="st-summary">Il coach non ti conosce ancora. Fai due chiacchiere nella Conversazione: più parli, più le lezioni saranno su misura per te.</p>
+          <div class="chips" id="st-chips"></div>
+          <details class="goals">
+            <summary>Dì al coach cosa vuoi imparare</summary>
+            <div class="goals-box">
+              <textarea id="goals" placeholder="Es. “Mi serve l'inglese per il lavoro, faccio il cuoco. Voglio parlare meglio al telefono e imparare il vocabolario della cucina.”"></textarea>
+              <button class="btn ghost" id="savegoals" type="button">Salva</button>
+            </div>
+          </details>
+        </div>
+
+        <div id="lessonarea">
+          <div class="lesson-cta" id="lessoncta">
+            <h2 id="cta-title">La tua lezione di oggi</h2>
+            <p class="hint" id="cta-text">Il coach prepara una lezione pensata per te: guarda gli errori che hai fatto nelle conversazioni, di cosa ti piace parlare e cosa gli hai chiesto. Ogni lezione ha una spiegazione semplice in italiano, 6–8 parole nuove, un dialogo e un consiglio.</p>
+            <button class="btn" id="makelesson">Prepara la lezione di oggi</button>
+          </div>
+        </div>
+
+        <div class="block" id="archivebox" hidden>
+          <div class="eyebrow">Lezioni precedenti</div>
+          <ul class="archive" id="archive"></ul>
+        </div>
+      </div>
+    </section>
+
     <!-- CHAT -->
-    <section class="panel" id="panel-chat">
+    <section class="panel" id="panel-chat" hidden>
       <div class="scenarios" id="scenarios"></div>
       <div class="scroll" id="chatlog" aria-live="polite"></div>
       <form class="composer" id="composer">
-        <textarea id="input" rows="1" placeholder="Scrivi in inglese… (o chiedi in italiano: “come si dice…?”)"></textarea>
+        <textarea id="input" rows="1" placeholder="Scrivi in inglese… (o in italiano: “come si dice…?”)"></textarea>
         <button class="btn" id="send" type="submit">Invia</button>
       </form>
-    </section>
-
-    <!-- QUIZ -->
-    <section class="panel" id="panel-quiz" hidden>
-      <div class="scroll" id="quizscroll">
-        <div class="quiz-controls">
-          <select id="topic">
-            <option>Grammatica mista</option>
-            <option>Tempi verbali (present, past, future)</option>
-            <option>Present perfect vs past simple</option>
-            <option>Preposizioni (in, on, at…)</option>
-            <option>Phrasal verbs comuni</option>
-            <option>Vocabolario di tutti i giorni</option>
-            <option>Falsi amici italiano-inglese</option>
-          </select>
-          <button class="btn" id="newquiz">Nuovo esercizio</button>
-        </div>
-        <div id="quiz"></div>
-      </div>
     </section>
 
     <!-- WORDS -->
@@ -163,9 +227,28 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
           <input id="w-it" placeholder="Traduzione" autocomplete="off">
           <button class="btn" type="submit">Aggiungi</button>
         </form>
-        <p class="hint" id="wordsnote">Le parole utili della conversazione si salvano con un tocco su “Salva”.</p>
+        <p class="hint" id="wordsnote">Le parole delle lezioni finiscono qui da sole. Tocca “La so” quando una parola ti è entrata in testa: il coach smetterà di riproportela e passerà a parole nuove.</p>
         <ul class="words" id="words"></ul>
-        <button class="btn ghost" id="practice" hidden>Ripassa le mie parole con un quiz</button>
+        <button class="btn ghost" id="practice" hidden>Ripassa le parole da imparare con un quiz</button>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section class="panel" id="panel-quiz" hidden>
+      <div class="scroll" id="quizscroll">
+        <div class="quiz-controls">
+          <select id="topic">
+            <option>I miei punti deboli</option>
+            <option>Grammatica mista</option>
+            <option>Tempi verbali (present, past, future)</option>
+            <option>Present perfect vs past simple</option>
+            <option>Preposizioni (in, on, at…)</option>
+            <option>Phrasal verbs comuni</option>
+            <option>Falsi amici italiano-inglese</option>
+          </select>
+          <button class="btn" id="newquiz">Nuovo esercizio</button>
+        </div>
+        <div id="quiz"></div>
       </div>
     </section>
   </main>
@@ -174,25 +257,21 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 <script>
 (() => {
   const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const store = {
     get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
   };
+  const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+  const fmtDate = (k) => { try { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("it-IT", { day: "numeric", month: "short" }); } catch { return k; } };
 
-  /* ---------- shared state ---------- */
   let sample = null;
   const levelEl = $("#level");
-  levelEl.value = store.get("ec-level", "A2");
-  levelEl.onchange = () => store.set("ec-level", levelEl.value);
 
-  function flash(text) {
-    const el = document.createElement("div");
-    el.className = "flash"; el.textContent = text;
-    document.body.appendChild(el); setTimeout(() => el.remove(), 1800);
-  }
+  function flash(text) { const f = el("div", "flash", text); document.body.appendChild(f); setTimeout(() => f.remove(), 2000); }
   function errCopy(e) {
     const c = e && e.code;
-    if (c === "not_granted") return "Per usare il tutor devi consentire a questa pagina di usare Claude. Ricarica la pagina e premi “Consenti”.";
+    if (c === "not_granted") return "Per usare il coach devi consentire a questa pagina di usare Claude. Ricarica la pagina e premi “Consenti”.";
     if (c === "rate_limited") return "Troppe richieste in poco tempo. Aspetta un minuto e riprova.";
     if (c === "cancelled") return "";
     return "Non sono riuscito a rispondere. Riprova tra poco.";
@@ -204,19 +283,290 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
       speechSynthesis.cancel(); speechSynthesis.speak(u);
     } catch { flash("La lettura ad alta voce non è disponibile qui"); }
   }
+  const sayBtn = (text) => { const b = el("button", "mini", "Ascolta"); b.type = "button"; b.onclick = () => speak(typeof text === "function" ? text() : text); return b; };
 
-  /* ---------- tabs ---------- */
-  document.querySelectorAll("nav.tabs button").forEach((b) => {
-    b.onclick = () => showTab(b.dataset.panel);
-  });
+  /* ================= learner profile (what the coach knows about you) ================= */
+  const EMPTY = { level: "A2", goals: "", summary: "", interests: [], weak: [], strengths: [], errors: [], days: [], lessonsDone: 0 };
+  let P = Object.assign({}, EMPTY, store.get("ec-profile", {}));
+  let coachDoc = null, saveTimer = null, saving = Promise.resolve();
+  levelEl.value = P.level || "A2";
+
+  function saveProfile() {
+    store.set("ec-profile", P);
+    if (!coachDoc) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { const snap = JSON.parse(JSON.stringify(P)); saving = saving.then(() => coachDoc.set(snap)).catch(() => {}); }, 700);
+  }
+  function markActiveDay() {
+    const t = today();
+    if (!P.days.includes(t)) { P.days.push(t); P.days = P.days.slice(-120); saveProfile(); renderPath(); }
+  }
+  function streak() {
+    const set = new Set(P.days); let n = 0; const d = new Date();
+    if (!set.has(today())) d.setDate(d.getDate() - 1);
+    for (;;) {
+      const k = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      if (!set.has(k)) break; n++; d.setDate(d.getDate() - 1);
+    }
+    return n;
+  }
+  levelEl.onchange = () => { P.level = levelEl.value; saveProfile(); };
+
+  function renderPath() {
+    $("#st-streak").textContent = streak();
+    $("#st-lessons").textContent = P.lessonsDone || 0;
+    $("#st-words").textContent = words.filter((w) => w.known).length;
+    if (P.summary) $("#st-summary").textContent = P.summary;
+    const chips = $("#st-chips"); chips.innerHTML = "";
+    (P.weak || []).slice(0, 5).forEach((w) => chips.appendChild(el("span", "pill", w)));
+    (P.interests || []).slice(0, 4).forEach((w) => chips.appendChild(el("span", "pill int", w)));
+    if (document.activeElement !== $("#goals")) $("#goals").value = P.goals || "";
+  }
+  $("#savegoals").onclick = () => { P.goals = $("#goals").value.trim().slice(0, 1500); saveProfile(); flash("Il coach ne terrà conto"); };
+
+  // Recent things the student wrote, across all conversations (stays on this device)
+  function recentStudentMessages() {
+    const all = [];
+    SCENARIOS.concat([["lesson"]]).forEach(([id]) => {
+      (store.get("ec-turns-" + id, []) || []).forEach((t) => { if (t.role === "user") all.push(t.content.slice(0, 300)); });
+    });
+    return all.slice(-30);
+  }
+  function profileText() {
+    return [
+      `CEFR level chosen: ${levelEl.value}.`,
+      P.goals && `Student's own goals and requests: ${P.goals}`,
+      P.summary && `What you know about the student: ${P.summary}`,
+      P.interests.length && `Interests: ${P.interests.join(", ")}`,
+      P.weak.length && `Weak points: ${P.weak.join(", ")}`,
+    ].filter(Boolean).join("\n");
+  }
+
+  /* ================= tabs ================= */
+  document.querySelectorAll("nav.tabs button").forEach((b) => { b.onclick = () => showTab(b.dataset.panel); });
   function showTab(name) {
     document.querySelectorAll("nav.tabs button").forEach((x) => x.setAttribute("aria-selected", x.dataset.panel === name));
-    ["chat", "quiz", "words"].forEach((p) => ($("#panel-" + p).hidden = p !== name));
+    ["lesson", "chat", "words", "quiz"].forEach((p) => ($("#panel-" + p).hidden = p !== name));
     store.set("ec-tab", name);
   }
-  showTab(store.get("ec-tab", "chat"));
+  showTab(store.get("ec-tab", "lesson"));
 
-  /* ---------- conversation ---------- */
+  /* ================= words ================= */
+  let words = store.get("ec-words", []);
+  let wordsCol = null;
+  function renderWords() {
+    const ul = $("#words"); ul.innerHTML = "";
+    if (!words.length) {
+      const li = el("li", "empty", "Nessuna parola ancora. Fai la lezione di oggi o aggiungine una qui sopra.");
+      li.style.display = "block"; li.style.border = "0"; ul.appendChild(li);
+    }
+    const sorted = words.slice().sort((a, b) => (a.known ? 1 : 0) - (b.known ? 1 : 0) || (b.added || 0) - (a.added || 0));
+    sorted.forEach((w) => {
+      const li = el("li", w.known ? "known" : "");
+      const known = el("button", "mini" + (w.known ? " on" : ""), w.known ? "La so ✓" : "La so"); known.type = "button";
+      known.onclick = () => updateWord(w, { known: !w.known });
+      const del = el("button", "mini", "Elimina"); del.type = "button"; del.onclick = () => removeWord(w);
+      li.append(el("span", "en", w.en), el("span", "it", w.it || ""), sayBtn(w.en), known, del);
+      ul.appendChild(li);
+    });
+    $("#practice").hidden = words.filter((w) => !w.known).length < 4;
+    renderPath();
+  }
+  const isLocal = (w) => String(w.id || "").startsWith("l");
+  async function addWord(en, it, extra = {}, quiet) {
+    const w = Object.assign({ en: en.slice(0, 120), it: (it || "").slice(0, 200), added: Date.now(), known: false }, extra);
+    if (words.some((x) => x.en.toLowerCase() === w.en.toLowerCase())) { if (!quiet) flash("Già nelle tue parole"); return; }
+    if (wordsCol) { try { await wordsCol.add(w); if (!quiet) flash("Parola salvata"); return; } catch {} }
+    w.id = "l" + w.added + Math.random().toString(36).slice(2, 6); words.unshift(w); store.set("ec-words", words); renderWords();
+    if (!quiet) flash("Parola salvata");
+  }
+  async function updateWord(w, patch) {
+    if (wordsCol && !isLocal(w)) { try { await wordsCol.doc(w.id).update(patch); return; } catch {} }
+    Object.assign(w, patch); store.set("ec-words", words); renderWords();
+  }
+  async function removeWord(w) {
+    if (wordsCol && !isLocal(w)) { try { await wordsCol.doc(w.id).delete(); return; } catch {} }
+    words = words.filter((x) => x !== w); store.set("ec-words", words); renderWords();
+  }
+  $("#addword").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const en = $("#w-en").value.trim(), it = $("#w-it").value.trim();
+    if (!en) return;
+    addWord(en, it); $("#w-en").value = ""; $("#w-it").value = ""; $("#w-en").focus();
+  });
+  const learningWords = () => words.filter((w) => !w.known).slice(0, 15).map((w) => w.en);
+  const knownWords = () => words.filter((w) => w.known).slice(0, 150).map((w) => w.en);
+
+  /* ================= daily lesson ================= */
+  let lessons = store.get("ec-lessons", []);   // [{id, date, createdAt, n, done, lesson}]
+  let lessonsCol = null;
+  let current = null;
+
+  function renderArchive() {
+    const ul = $("#archive"); ul.innerHTML = "";
+    const past = lessons.filter((l) => l !== current).slice(0, 12);
+    $("#archivebox").hidden = !past.length;
+    past.forEach((l) => {
+      const li = el("li"); const b = el("button"); b.type = "button";
+      b.append(el("span", "", (l.done ? "✓ " : "") + (l.lesson.title || "Lezione")), el("span", "d", fmtDate(l.date)));
+      b.onclick = () => { current = l; renderLesson(); $("#lessonscroll").scrollTop = $("#lessonarea").offsetTop - 20; };
+      li.appendChild(b); ul.appendChild(li);
+    });
+  }
+
+  function renderLesson() {
+    const area = $("#lessonarea"); area.innerHTML = "";
+    const todays = lessons.find((l) => l.date === today());
+    if (!current) {
+      const cta = el("div", "lesson-cta");
+      cta.append(el("h2", "", todays ? "Hai già la lezione di oggi" : "La tua lezione di oggi"));
+      cta.append(el("p", "hint", "Il coach prepara una lezione pensata per te: guarda gli errori che hai fatto nelle conversazioni, di cosa ti piace parlare e cosa gli hai chiesto. Ogni lezione ha una spiegazione semplice in italiano, 6–8 parole nuove, un dialogo e un consiglio."));
+      const b = el("button", "btn", "Prepara la lezione di oggi"); b.id = "makelesson"; b.onclick = makeLesson;
+      cta.append(b); area.appendChild(cta); renderArchive(); return;
+    }
+    const L = current.lesson;
+    const box = el("article", "lesson");
+    const head = el("div", "block");
+    head.append(el("div", "eyebrow", `Lezione ${current.n || ""} · ${fmtDate(current.date)}`), el("h2", "", L.title || "Lezione di oggi"));
+    if (L.intro) head.append(el("p", "intro", L.intro));
+    box.appendChild(head);
+
+    (L.sections || []).forEach((s) => {
+      const b = el("section", "block");
+      b.append(el("h3", "", s.heading || ""));
+      if (s.body) b.append(el("p", "", s.body));
+      if (s.examples && s.examples.length) {
+        const ex = el("div", "ex");
+        s.examples.forEach((x) => { const d = el("div"); d.append(el("b", "", x.en), el("span", "it", x.it || ""), sayBtn(x.en)); ex.appendChild(d); });
+        b.append(ex);
+      }
+      box.appendChild(b);
+    });
+
+    if (L.words && L.words.length) {
+      const b = el("section", "block"); b.append(el("h3", "", "Parole nuove"));
+      const g = el("div", "wordgrid");
+      L.words.forEach((w) => {
+        const c = el("div", "wcard"); const top = el("div", "top");
+        top.append(el("b", "", w.en), sayBtn(w.en));
+        c.append(top, el("span", "", w.it || ""));
+        if (w.example) c.append(el("i", "", w.example));
+        g.appendChild(c);
+      });
+      b.append(g, el("p", "hint", "Sono già nelle tue Parole."));
+      box.appendChild(b);
+    }
+
+    if (L.dialogue && L.dialogue.length) {
+      const b = el("section", "block"); b.append(el("h3", "", "Dialogo"));
+      const d = el("div", "dialog");
+      L.dialogue.forEach((ln) => {
+        const row = el("div", "line"); const txt = el("div");
+        txt.append(el("div", "", ln.en)); const tr = el("div", "tr", ln.it || ""); tr.hidden = true; txt.append(tr);
+        row.append(el("div", "who", ln.who || ""), txt); d.appendChild(row);
+      });
+      const tools = el("div", "actions");
+      const all = sayBtn(() => L.dialogue.map((x) => x.en).join(" "));
+      all.textContent = "Ascolta il dialogo";
+      const tgl = el("button", "mini", "Mostra traduzione"); tgl.type = "button";
+      tgl.onclick = () => { const show = tgl.textContent.startsWith("Mostra"); d.querySelectorAll(".tr").forEach((t) => (t.hidden = !show)); tgl.textContent = show ? "Nascondi traduzione" : "Mostra traduzione"; };
+      tools.append(all, tgl);
+      b.append(d, tools); box.appendChild(b);
+    }
+
+    if (L.tip) { const t = el("div", "tip"); t.append(el("b", "", "Consiglio: "), L.tip); box.appendChild(t); }
+
+    const act = el("div", "actions");
+    const pr = el("button", "btn", "Mettila in pratica in conversazione"); pr.onclick = () => practiceLesson(current);
+    const done = el("button", "btn ghost", current.done ? "Lezione completata ✓" : "Ho finito la lezione");
+    done.disabled = !!current.done; done.onclick = () => finishLesson(current);
+    act.append(pr, done);
+    box.appendChild(act);
+
+    const more = el("div", "lesson-cta");
+    const again = el("button", "btn ghost", "Prepara un'altra lezione"); again.onclick = makeLesson;
+    more.append(again);
+    area.append(box, more);
+    renderArchive();
+  }
+
+  async function saveLesson(rec) {
+    if (lessonsCol && !isLocal(rec)) { try { await lessonsCol.doc(rec.id).set(rec); return; } catch {} }
+    store.set("ec-lessons", lessons.filter(isLocal).slice(0, 20));
+  }
+
+  async function makeLesson() {
+    if (!sample) { flash("Il coach non è ancora collegato"); return; }
+    const area = $("#lessonarea"); area.innerHTML = "";
+    area.append(el("p", "thinking", "Il coach sta preparando la tua lezione… di solito ci vuole meno di un minuto."));
+    const prev = lessons.slice(0, 10).map((l) => `${l.date}: ${l.lesson.title}${l.lesson.topic ? " (" + l.lesson.topic + ")" : ""}`);
+    const prompt = `You are an expert, warm English teacher for an Italian adult. Prepare TODAY's personal lesson.
+
+STUDENT PROFILE
+${profileText() || "No profile yet: this is the first lesson."}
+
+RECENT MISTAKES FROM CONVERSATIONS (wrong => right | note):
+${P.errors.slice(-30).map((e) => `- ${e.wrong} => ${e.right}${e.why ? " | " + e.why : ""}`).join("\n") || "(none yet)"}
+
+RECENT THINGS THE STUDENT WROTE (may include instructions or wishes about what to learn — follow them):
+${recentStudentMessages().map((m) => "- " + m).join("\n") || "(nothing yet)"}
+
+WORDS ALREADY KNOWN (never teach these as new): ${knownWords().join(", ") || "(none)"}
+WORDS BEING LEARNED (reuse 2-3 of them in examples or dialogue for review): ${learningWords().join(", ") || "(none)"}
+PREVIOUS LESSONS (avoid repeating a topic unless the mistakes show it is still a problem):
+${prev.join("\n") || "(none — first lesson: start from something useful and confidence-building for level " + levelEl.value + ")"}
+
+HOW TO DESIGN THE LESSON
+- Pick ONE main topic: a grammar point or a practical skill. Prefer the student's recurring mistakes and stated goals; otherwise the next natural step for level ${levelEl.value}.
+- Teach like a person, not a quiz: explain simply in ITALIAN, with clear English examples. No exercises.
+- Teach 6-8 NEW words or expressions connected to the topic and to the student's interests and conversations.
+- Write a short realistic dialogue (6-10 lines) that uses the topic and the new words, at level ${levelEl.value}.
+- Finish with one practical tip in Italian.
+- Also update the student profile from all the evidence above.
+
+Return ONLY JSON in this shape:
+{
+ "title": "short lesson title in Italian",
+ "topic": "main topic in a few words",
+ "intro": "2-3 sentences in Italian: what we learn today and WHY it is for this student (mention their mistakes, interests or requests concretely)",
+ "sections": [ {"heading": "Italian heading", "body": "explanation in Italian (can include English phrases)", "examples": [{"en": "...", "it": "..."}]} ],
+ "words": [ {"en": "...", "it": "...", "example": "English example sentence"} ],
+ "dialogue": [ {"who": "short name", "en": "...", "it": "..."} ],
+ "tip": "...",
+ "practiceOpener": "the first line YOU (as tutor) will say in English to start a conversation where the student practises this lesson",
+ "profile": {"summary": "2-3 sentences in Italian, addressed to the student with 'tu', about where they are and what they are improving", "interests": ["max 5, Italian"], "weak": ["max 5 short weak points, Italian"], "strengths": ["max 3, Italian"]}
+}
+Use 2-4 sections.`;
+    try {
+      const L = await sample.json(prompt, { cache: false });
+      if (!L || !L.title || !Array.isArray(L.sections)) throw { code: "bad" };
+      if (L.profile) {
+        if (L.profile.summary) P.summary = String(L.profile.summary).slice(0, 600);
+        ["interests", "weak", "strengths"].forEach((k) => { if (Array.isArray(L.profile[k])) P[k] = L.profile[k].slice(0, 5).map(String); });
+        delete L.profile;
+      }
+      const rec = { id: today() + "-" + Date.now().toString(36), date: today(), createdAt: Date.now(), n: lessons.length + 1, done: false, lesson: L };
+      if (!lessonsCol) rec.id = "l" + rec.id;
+      lessons.unshift(rec); current = rec;
+      await saveLesson(rec);
+      for (const w of (L.words || [])) if (w && w.en) await addWord(String(w.en), String(w.it || ""), { from: "lesson" }, true);
+      markActiveDay(); saveProfile(); renderPath();
+      renderLesson();
+      $("#lessonscroll").scrollTop = $("#lessonarea").offsetTop - 20;
+    } catch (err) {
+      area.innerHTML = "";
+      area.append(el("p", "notice", errCopy(err) || "Annullato."));
+      const b = el("button", "btn", "Riprova"); b.onclick = makeLesson; area.append(b);
+    }
+  }
+
+  async function finishLesson(rec) {
+    rec.done = true; P.lessonsDone = (P.lessonsDone || 0) + 1;
+    markActiveDay(); saveProfile(); await saveLesson(rec);
+    renderLesson(); renderPath(); flash("Ottimo lavoro! Ci vediamo domani");
+  }
+
+  /* ================= conversation ================= */
   const SCENARIOS = [
     ["free", "Chiacchierata libera", "a free, friendly chat about the student's life and interests"],
     ["cafe", "Al bar", "ordering at a café in London; you are the barista"],
@@ -235,37 +585,54 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
     doctor: "Hello, please take a seat. What seems to be the problem today?",
     directions: "Hi there! You look a bit lost. Can I help you find something?",
   };
+  let practice = store.get("ec-practice", null);   // {title, topic, words[], opener}
   let scenario = store.get("ec-scenario", "free");
-  let turns = store.get("ec-turns-" + scenario, null);
+  if (scenario === "lesson" && !practice) scenario = "free";
+  let turns = null;
   let ctl = null;
 
   const scenEl = $("#scenarios");
-  SCENARIOS.forEach(([id, label]) => {
-    const b = document.createElement("button");
-    b.className = "chip"; b.type = "button"; b.textContent = label; b.dataset.id = id;
-    b.onclick = () => switchScenario(id);
-    scenEl.appendChild(b);
-  });
+  function renderScenarioChips() {
+    scenEl.innerHTML = "";
+    const list = (practice ? [["lesson", "Pratica: " + practice.title]] : []).concat(SCENARIOS.map((s) => [s[0], s[1]]));
+    list.forEach(([id, label]) => {
+      const b = el("button", "chip" + (id === "lesson" ? " lesson-chip" : ""), label); b.type = "button"; b.dataset.id = id;
+      b.setAttribute("aria-pressed", id === scenario); b.onclick = () => switchScenario(id);
+      scenEl.appendChild(b);
+    });
+  }
   function switchScenario(id) {
     ctl?.abort();
     scenario = id; store.set("ec-scenario", id);
     turns = store.get("ec-turns-" + id, null);
     renderChat();
   }
-  function freshTurns() { return [{ role: "assistant", content: OPENERS[scenario] }]; }
+  function freshTurns() { return [{ role: "assistant", content: scenario === "lesson" ? practice.opener : OPENERS[scenario] }]; }
+  function practiceLesson(rec) {
+    const L = rec.lesson;
+    practice = { title: L.title, topic: L.topic || L.title, words: (L.words || []).map((w) => w.en), opener: L.practiceOpener || "Let's practise today's lesson! Are you ready?" };
+    store.set("ec-practice", practice);
+    store.set("ec-turns-lesson", null);
+    showTab("chat"); switchScenario("lesson");
+  }
 
   function rules() {
-    const sc = SCENARIOS.find((s) => s[0] === scenario)[2];
-    return `You are a warm, patient English tutor for an Italian speaker whose CEFR level is ${levelEl.value}.
-Role-play scenario: ${sc}.
+    const sc = scenario === "lesson"
+      ? `practising today's lesson "${practice.title}" (topic: ${practice.topic}). Create a natural situation where the student must use this topic and these words: ${practice.words.join(", ")}. Gently push them to use them.`
+      : SCENARIOS.find((s) => s[0] === scenario)[2];
+    const learn = learningWords();
+    return `You are a warm, patient English tutor for an Italian speaker.
+${profileText()}
+Role-play scenario: ${sc}
+${learn.length ? `Words the student is learning — reuse some naturally so they hear them again: ${learn.join(", ")}.` : ""}
 
 Answer EVERY message in exactly this format:
-1. Your reply IN ENGLISH, 1-4 short sentences, using vocabulary and grammar suited to level ${levelEl.value}. Stay in the scenario and end with a question so the conversation continues. If the student writes in Italian or asks how to say something, help them briefly (you may use a little Italian) and show the English phrase, then continue.
+1. Your reply IN ENGLISH, 1-4 short sentences, suited to level ${levelEl.value}. Stay in the scenario and end with a question so the conversation continues. If the student writes in Italian, asks how to say something, or gives you instructions about how they want to learn, help or agree briefly (a little Italian is fine), show the English, then continue.
 2. A line containing only: ###
-3. In ITALIAN, corrections of the student's LAST message only. One line per mistake, in the form:
+3. In ITALIAN, corrections of the student's LAST message only. One line per mistake:
 ERRORE: <wrong part> => <correct English> | <short explanation in Italian>
 If there are no mistakes, write exactly: OK
-4. Then one line: PAROLA: <one useful English word or expression from your reply> = <Italian translation>
+4. Then one line: PAROLA: <one useful NEW English word or expression from your reply> = <Italian translation>
 
 Never skip the ### line. Keep corrections kind and short.`;
   }
@@ -275,90 +642,68 @@ Never skip the ### line. Keep corrections kind and short.`;
     if (i < 0) return { reply: text.trim(), notes: null };
     return { reply: text.slice(0, i).trim(), notes: text.slice(i + 3).trim() };
   }
+  function parseErrors(notes) {
+    return (notes || "").split("\n").map((l) => l.trim()).filter((l) => /^ERRORE:/i.test(l)).map((l) => {
+      const m = l.replace(/^ERRORE:\s*/i, "").match(/^(.*?)\s*=>\s*(.*?)(?:\s*\|\s*(.*))?$/);
+      return m ? { wrong: m[1], right: m[2], why: m[3] || "" } : { wrong: l.replace(/^ERRORE:\s*/i, ""), right: "", why: "" };
+    });
+  }
 
   function renderNotes(container, notes) {
     container.innerHTML = "";
     if (!notes) return;
     const lines = notes.split("\n").map((l) => l.trim()).filter(Boolean);
-    const errs = lines.filter((l) => /^ERRORE:/i.test(l));
+    const errs = parseErrors(notes);
     const ok = lines.some((l) => /^OK\b/i.test(l));
     const word = lines.find((l) => /^PAROLA:/i.test(l));
     if (errs.length || ok) {
-      const box = document.createElement("div");
-      box.className = "fix" + (errs.length ? "" : " ok");
-      const lab = document.createElement("div");
-      lab.className = "label";
-      lab.textContent = errs.length ? "Correzioni del tuo messaggio" : "Il tuo messaggio";
-      box.appendChild(lab);
-      if (!errs.length) { const p = document.createElement("div"); p.textContent = "Perfetto, nessun errore!"; box.appendChild(p); }
-      errs.forEach((l) => {
-        const m = l.replace(/^ERRORE:\s*/i, "").match(/^(.*?)\s*=>\s*(.*?)(?:\s*\|\s*(.*))?$/);
-        const p = document.createElement("div");
-        if (m) {
-          const s = document.createElement("s"); s.textContent = m[1];
-          const b = document.createElement("b"); b.textContent = m[2];
-          p.append(s, " → ", b);
-          if (m[3]) { const e = document.createElement("span"); e.style.color = "var(--muted)"; e.textContent = " — " + m[3]; p.append(e); }
-        } else p.textContent = l.replace(/^ERRORE:\s*/i, "");
-        box.appendChild(p);
+      const box = el("div", "fix" + (errs.length ? "" : " ok"));
+      box.append(el("div", "eyebrow", errs.length ? "Correzioni del tuo messaggio" : "Il tuo messaggio"));
+      if (!errs.length) box.append(el("div", "", "Perfetto, nessun errore!"));
+      errs.forEach((e) => {
+        const p = el("div");
+        if (e.right) { p.append(el("s", "", e.wrong), " → ", el("b", "", e.right)); if (e.why) { const s = el("span", "", " — " + e.why); s.style.color = "var(--muted)"; p.append(s); } }
+        else p.textContent = e.wrong;
+        box.append(p);
       });
-      container.appendChild(box);
+      container.append(box);
     }
     if (word) {
       const m = word.replace(/^PAROLA:\s*/i, "").split("=");
       const en = (m[0] || "").trim(), it = (m.slice(1).join("=") || "").trim();
       if (en) {
-        const row = document.createElement("div"); row.className = "useful";
-        const t = document.createElement("span");
-        const b = document.createElement("b"); b.textContent = en;
-        t.append("Parola utile: ", b, it ? " = " + it : "");
-        const save = document.createElement("button"); save.className = "mini"; save.type = "button"; save.textContent = "Salva";
-        save.onclick = async () => { await addWord(en, it); save.textContent = "Salvata"; save.disabled = true; };
-        const say = document.createElement("button"); say.className = "mini"; say.type = "button"; say.textContent = "Ascolta";
-        say.onclick = () => speak(en);
-        row.append(t, say, save);
-        container.appendChild(row);
+        const row = el("div", "useful"); const t = el("span");
+        t.append("Parola utile: ", el("b", "", en), it ? " = " + it : "");
+        const save = el("button", "mini", "Salva"); save.type = "button";
+        save.onclick = async () => { await addWord(en, it, { from: "chat" }); save.textContent = "Salvata"; save.disabled = true; };
+        row.append(t, sayBtn(en), save); container.append(row);
       }
     }
   }
 
   function addMsg(role, content) {
-    const wrap = document.createElement("div");
-    wrap.className = "msg " + (role === "user" ? "me" : "tutor");
-    const bubble = document.createElement("div"); bubble.className = "bubble";
-    wrap.appendChild(bubble);
-    const notes = document.createElement("div");
-    notes.style.display = "flex"; notes.style.flexDirection = "column"; notes.style.gap = "6px";
-    if (role !== "user") {
-      const tools = document.createElement("div"); tools.className = "tools";
-      const say = document.createElement("button"); say.className = "mini"; say.type = "button"; say.textContent = "Ascolta";
-      say.onclick = () => speak(bubble.textContent);
-      tools.appendChild(say);
-      wrap.append(tools, notes);
-    }
+    const wrap = el("div", "msg " + (role === "user" ? "me" : "tutor"));
+    const bubble = el("div", "bubble"); wrap.append(bubble);
+    const notes = el("div", "notes");
+    if (role !== "user") { const tools = el("div", "tools"); tools.append(sayBtn(() => bubble.textContent)); wrap.append(tools, notes); }
     const p = role === "user" ? { reply: content } : parse(content);
     bubble.textContent = p.reply;
     if (p.notes) renderNotes(notes, p.notes);
-    $("#chatlog").appendChild(wrap);
-    $("#chatlog").scrollTop = 1e9;
+    $("#chatlog").append(wrap); $("#chatlog").scrollTop = 1e9;
     return { wrap, bubble, notes };
   }
 
   function renderChat() {
-    scenEl.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", c.dataset.id === scenario));
+    renderScenarioChips();
     if (!turns || !turns.length) turns = freshTurns();
     const log = $("#chatlog"); log.innerHTML = "";
-    if (!sample) {
-      const n = document.createElement("div"); n.className = "notice"; n.id = "chatnotice";
-      n.textContent = "Collegamento al tutor in corso… Se non parte, apri questa pagina da claude.ai con il tuo account.";
-      log.appendChild(n);
-    }
+    if (!sample) { const n = el("div", "notice", "Collegamento al coach in corso… Se non parte, apri questa pagina da claude.ai con il tuo account."); n.id = "chatnotice"; log.append(n); }
     turns.forEach((t) => addMsg(t.role, t.content));
-    const reset = document.createElement("button");
-    reset.className = "mini"; reset.type = "button"; reset.textContent = "Ricomincia questa conversazione";
-    reset.style.alignSelf = "center";
-    reset.onclick = () => { ctl?.abort(); turns = freshTurns(); store.set("ec-turns-" + scenario, turns); renderChat(); };
-    if (turns.length > 1) log.appendChild(reset);
+    if (turns.length > 1) {
+      const reset = el("button", "mini", "Ricomincia questa conversazione"); reset.type = "button"; reset.id = "resetchat"; reset.style.alignSelf = "center";
+      reset.onclick = () => { ctl?.abort(); turns = freshTurns(); store.set("ec-turns-" + scenario, turns); renderChat(); };
+      log.append(reset);
+    }
     log.scrollTop = 1e9;
   }
 
@@ -376,185 +721,152 @@ Never skip the ### line. Keep corrections kind and short.`;
     e.preventDefault();
     const text = input.value.trim();
     if (!text) return;
-    if (!sample) { flash("Il tutor non è ancora collegato"); return; }
+    if (!sample) { flash("Il coach non è ancora collegato"); return; }
     input.value = ""; store.set("ec-draft", ""); input.style.height = "auto";
     turns.push({ role: "user", content: text });
     store.set("ec-turns-" + scenario, turns);
-    $("#chatlog").querySelector(".mini[style]")?.remove();
+    $("#resetchat")?.remove();
     addMsg("user", text);
     const out = addMsg("assistant", "");
     out.bubble.innerHTML = '<span class="thinking">Sto pensando…</span>';
     const send = $("#send"); send.disabled = true;
     ctl = new AbortController();
-    // Send the instructions as the first user turn, then the recent conversation
-    const recent = turns.slice(-20);
     const msgs = [{ role: "user", content: rules() + "\n\n(Start of conversation.)" }];
-    recent.forEach((t) => msgs.push({ role: t.role, content: t.content }));
-    // The API needs alternating turns starting with user: merge consecutive same-role turns
+    turns.slice(-20).forEach((t) => msgs.push({ role: t.role, content: t.content }));
     const merged = [];
     msgs.forEach((m) => { const last = merged[merged.length - 1]; if (last && last.role === m.role) last.content += "\n\n" + m.content; else merged.push({ ...m }); });
     try {
       const { text: answer } = await sample(merged, {
         cache: false, signal: ctl.signal, modelTier: "quick",
-        onText: ({ text: t }) => {
-          const p = parse(t);
-          out.bubble.textContent = p.reply || "…";
-          if (p.notes) renderNotes(out.notes, p.notes);
-          $("#chatlog").scrollTop = 1e9;
-        },
+        onText: ({ text: t }) => { const p = parse(t); out.bubble.textContent = p.reply || "…"; if (p.notes) renderNotes(out.notes, p.notes); $("#chatlog").scrollTop = 1e9; },
       });
       const p = parse(answer);
       out.bubble.textContent = p.reply; renderNotes(out.notes, p.notes);
       turns.push({ role: "assistant", content: answer });
       store.set("ec-turns-" + scenario, turns);
+      // Remember mistakes so the next lessons can target them
+      const errs = parseErrors(p.notes).filter((x) => x.right);
+      if (errs.length) { P.errors = P.errors.concat(errs.map((x) => ({ ...x, at: today() }))).slice(-60); }
+      markActiveDay(); saveProfile();
     } catch (err) {
       const msg = errCopy(err);
       turns.pop(); store.set("ec-turns-" + scenario, turns);
       out.wrap.remove();
-      if (msg) flash(msg.length > 70 ? "Errore: consenti l'uso di Claude e riprova" : msg);
-      if (err && err.code === "not_granted") {
-        const n = document.createElement("div"); n.className = "notice"; n.textContent = msg;
-        $("#chatlog").appendChild(n);
-      }
+      if (msg) flash(msg.length > 70 ? "Consenti l'uso di Claude e riprova" : msg);
+      if (err && err.code === "not_granted") $("#chatlog").append(el("div", "notice", msg));
       input.value = text;
     } finally { send.disabled = false; ctl = null; }
   });
 
-  /* ---------- quiz ---------- */
-  const EXAMPLE_QUIZ = [{
-    q: "I ___ to London three times.", options: ["have been", "was", "am", "have went"], answer: 0,
-    explain: "Con esperienze di vita senza un momento preciso si usa il present perfect: have been.",
-  }];
+  /* ================= quiz ================= */
+  const EXAMPLE_QUIZ = [{ q: "I ___ to London three times.", options: ["have been", "was", "am", "have went"], answer: 0, explain: "Con esperienze di vita senza un momento preciso si usa il present perfect: have been." }];
   function renderQuiz(qs, isExample) {
     const box = $("#quiz"); box.innerHTML = "";
-    box.style.display = "flex"; box.style.flexDirection = "column"; box.style.gap = "12px";
     if (isExample) {
-      const n = document.createElement("p"); n.className = "hint";
-      n.innerHTML = '<span class="tag">Esempio</span> Scegli un argomento e premi “Nuovo esercizio”: Claude prepara 6 domande al tuo livello.';
-      box.appendChild(n);
+      const n = el("p", "hint"); n.append(el("span", "tag", "Esempio"), " Scegli un argomento e premi “Nuovo esercizio”. “I miei punti deboli” usa gli errori delle tue conversazioni.");
+      box.append(n);
     }
     let answered = 0, right = 0;
-    const score = document.createElement("div"); score.className = "score";
+    const score = el("div", "score");
     qs.forEach((item, i) => {
-      const card = document.createElement("div"); card.className = "q";
-      const num = document.createElement("div"); num.className = "num"; num.textContent = `DOMANDA ${i + 1} DI ${qs.length}`;
-      const h = document.createElement("h3"); h.textContent = item.q;
-      const opts = document.createElement("div"); opts.className = "opts";
-      const ex = document.createElement("p"); ex.className = "explain"; ex.hidden = true; ex.textContent = item.explain || "";
+      const card = el("div", "q");
+      const opts = el("div", "opts");
+      const ex = el("p", "explain", item.explain || ""); ex.hidden = true;
       item.options.forEach((o, j) => {
-        const b = document.createElement("button"); b.className = "opt"; b.type = "button"; b.textContent = o;
+        const b = el("button", "opt", o); b.type = "button";
         b.onclick = () => {
           if (card.dataset.done) return;
-          card.dataset.done = "1"; answered++;
-          if (j === item.answer) right++;
-          opts.children[item.answer].classList.add("right");
-          if (j !== item.answer) b.classList.add("wrong");
+          card.dataset.done = "1"; answered++; if (j === item.answer) right++;
+          opts.children[item.answer].classList.add("right"); if (j !== item.answer) b.classList.add("wrong");
           ex.hidden = false;
-          if (answered === qs.length) score.textContent = `Risultato: ${right} su ${qs.length}` + (right === qs.length ? " — perfetto!" : "");
+          if (answered === qs.length) { score.textContent = `Risultato: ${right} su ${qs.length}` + (right === qs.length ? " — perfetto!" : ""); markActiveDay(); }
         };
-        opts.appendChild(b);
+        opts.append(b);
       });
-      card.append(num, h, opts, ex);
-      box.appendChild(card);
+      card.append(el("div", "num", `DOMANDA ${i + 1} DI ${qs.length}`), el("h3", "", item.q), opts, ex);
+      box.append(card);
     });
-    box.appendChild(score);
+    box.append(score);
   }
   renderQuiz(EXAMPLE_QUIZ, true);
 
   async function makeQuiz(topicText) {
-    if (!sample) { flash("Il tutor non è ancora collegato"); return; }
+    if (!sample) { flash("Il coach non è ancora collegato"); return; }
     const btn = $("#newquiz"); btn.disabled = true;
     $("#quiz").innerHTML = '<p class="thinking">Preparo le domande… (può richiedere qualche secondo)</p>';
+    if (topicText === "I miei punti deboli") {
+      topicText = "the student's personal weak points. " + (P.weak.length ? "Weak points: " + P.weak.join(", ") + ". " : "") +
+        "Recent mistakes: " + (P.errors.slice(-20).map((e) => `${e.wrong} => ${e.right}`).join("; ") || "none yet, so use common mistakes Italians make");
+    }
     try {
       const data = await sample.json(
         `Create a multiple-choice English exercise for an Italian learner at CEFR level ${levelEl.value}.
 Topic: ${topicText}.
-Write 6 questions. Each question is an English sentence with a gap (___) or a short question; give 4 options, exactly one correct.
-Explanations must be in ITALIAN, one or two short sentences.
-Vary the position of the correct answer.
+Write 6 questions. Each is an English sentence with a gap (___) or a short question; 4 options, exactly one correct. Vary the position of the correct answer.
+Explanations in ITALIAN, one or two short sentences.
 Return only JSON: {"questions":[{"q":"...","options":["...","...","...","..."],"answer":<index 0-3>,"explain":"..."}]}`,
         { cache: false }
       );
       const qs = (data && data.questions || []).filter((q) => q && q.q && Array.isArray(q.options) && q.options.length >= 2 && Number.isInteger(q.answer) && q.answer < q.options.length);
       if (!qs.length) throw { code: "bad" };
-      renderQuiz(qs, false);
-      $("#quizscroll").scrollTop = 0;
+      renderQuiz(qs, false); $("#quizscroll").scrollTop = 0;
     } catch (err) {
-      $("#quiz").innerHTML = "";
-      const p = document.createElement("p"); p.className = "notice"; p.textContent = errCopy(err) || "Annullato.";
-      $("#quiz").appendChild(p);
+      $("#quiz").innerHTML = ""; $("#quiz").append(el("p", "notice", errCopy(err) || "Annullato."));
     } finally { btn.disabled = false; }
   }
   $("#newquiz").onclick = () => makeQuiz($("#topic").value);
-
-  /* ---------- words (saved privately per person; local fallback) ---------- */
-  let words = [];
-  let wordsCol = null;
-  function renderWords() {
-    const ul = $("#words"); ul.innerHTML = "";
-    if (!words.length) {
-      const li = document.createElement("li"); li.className = "empty"; li.style.border = "0"; li.style.display = "block";
-      li.textContent = "Nessuna parola ancora. Aggiungine una qui sopra, oppure salva le “parole utili” dalla conversazione.";
-      ul.appendChild(li);
-    }
-    words.forEach((w) => {
-      const li = document.createElement("li");
-      const en = document.createElement("span"); en.className = "en"; en.textContent = w.en;
-      const it = document.createElement("span"); it.className = "it"; it.textContent = w.it || "";
-      const say = document.createElement("button"); say.className = "mini"; say.type = "button"; say.textContent = "Ascolta";
-      say.onclick = () => speak(w.en);
-      const del = document.createElement("button"); del.className = "mini"; del.type = "button"; del.textContent = "Elimina";
-      del.onclick = () => removeWord(w);
-      li.append(en, it, say, del); ul.appendChild(li);
-    });
-    $("#practice").hidden = words.length < 4;
-  }
-  async function addWord(en, it) {
-    const w = { en: en.slice(0, 120), it: (it || "").slice(0, 200), added: Date.now() };
-    if (words.some((x) => x.en.toLowerCase() === w.en.toLowerCase())) { flash("Già nelle tue parole"); return; }
-    if (wordsCol) {
-      try { await wordsCol.add(w); flash("Parola salvata"); return; } catch { /* fall back to local */ }
-    }
-    w.id = "l" + w.added; words.unshift(w); store.set("ec-words", words); renderWords(); flash("Parola salvata");
-  }
-  async function removeWord(w) {
-    if (wordsCol && !String(w.id).startsWith("l")) { try { await wordsCol.doc(w.id).delete(); return; } catch {} }
-    words = words.filter((x) => x !== w); store.set("ec-words", words); renderWords();
-  }
-  $("#addword").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const en = $("#w-en").value.trim(), it = $("#w-it").value.trim();
-    if (!en) return;
-    addWord(en, it); $("#w-en").value = ""; $("#w-it").value = ""; $("#w-en").focus();
-  });
   $("#practice").onclick = () => {
     showTab("quiz");
-    const list = words.slice(0, 30).map((w) => `${w.en}${w.it ? " (" + w.it + ")" : ""}`).join(", ");
-    makeQuiz("Review of these words the student saved: " + list + ". Test meaning and usage in context.");
+    const list = words.filter((w) => !w.known).slice(0, 30).map((w) => `${w.en}${w.it ? " (" + w.it + ")" : ""}`).join(", ");
+    makeQuiz("Review of these words the student is learning: " + list + ". Test meaning and usage in context.");
   };
-  words = store.get("ec-words", []);
-  renderWords();
 
-  /* ---------- connect to Claude ---------- */
+  /* ================= start ================= */
+  renderWords(); renderPath(); renderLesson();
+  turns = store.get("ec-turns-" + scenario, null);
   renderChat();
+
   (async () => {
-    if (!window.claude) { const n = $("#chatnotice"); if (n) n.textContent = "Apri questa pagina da claude.ai per parlare con il tutor."; return; }
+    if (!window.claude) { const n = $("#chatnotice"); if (n) n.textContent = "Apri questa pagina da claude.ai per parlare con il coach."; return; }
     sample = await window.claude.use("sample");
     const n = $("#chatnotice");
     if (sample) n?.remove();
-    else if (n) n.textContent = "Il tutor non è disponibile in questa vista. Apri la pagina da claude.ai, con il tuo account.";
+    else if (n) n.textContent = "Il coach non è disponibile in questa vista. Apri la pagina da claude.ai, con il tuo account.";
 
     const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
     const uid = user ? await user.id() : null;
-    if (db && uid) {
-      wordsCol = db.doc("data/users/" + uid + "/coach").collection("words");
-      const local = words.filter((w) => String(w.id).startsWith("l"));
-      wordsCol.orderBy("added", "desc").onSnapshot((snap) => {
-        words = snap.docs.map((d) => ({ id: d.id, ...d.data() })).concat(local.filter((l) => !snap.docs.some((d) => d.data().en === l.en)));
-        renderWords();
-      }, () => {});
-      $("#wordsnote").textContent = "Le tue parole sono salvate nel tuo account: le ritrovi anche sul telefono.";
-    }
+    if (!db || !uid) return;
+
+    // Everything below lives in your private space: only you can read it, on any device.
+    coachDoc = db.doc("data/users/" + uid + "/coach");
+    try {
+      const snap = await coachDoc.get();
+      if (snap.exists) { P = Object.assign({}, EMPTY, snap.data()); levelEl.value = P.level || levelEl.value; store.set("ec-profile", P); }
+      else if (P.days.length || P.goals || P.errors.length) saveProfile();
+    } catch {}
+    renderPath();
+
+    wordsCol = coachDoc.collection("words");
+    const localWords = words.filter(isLocal);
+    wordsCol.orderBy("added", "desc").onSnapshot((snap) => {
+      const remote = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      words = remote.concat(localWords.filter((l) => !remote.some((r) => r.en === l.en)));
+      renderWords();
+    }, () => {});
+
+    lessonsCol = coachDoc.collection("lessons");
+    try {
+      const ls = await lessonsCol.orderBy("createdAt", "desc").limit(30).get();
+      const remote = ls.docs.map((d) => d.data());
+      lessons = remote.concat(lessons.filter(isLocal)).sort((a, b) => b.createdAt - a.createdAt);
+      if (!current || !lessons.includes(current)) current = lessons.find((l) => l.date === today()) || null;
+      renderLesson();
+    } catch {}
+    $("#wordsnote").textContent = "Le parole delle lezioni finiscono qui da sole e sono salvate nel tuo account (le ritrovi anche sul telefono). Tocca “La so” quando una parola ti è entrata in testa: il coach passerà a parole nuove.";
   })();
+
+  // Show today's lesson if it is already on this device
+  current = lessons.find((l) => l.date === today()) || null;
+  renderLesson();
 })();
 </script>
