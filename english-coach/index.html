@@ -1,0 +1,560 @@
+<title>English Coach</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: one-screen app — header, scrolling panel, input/tab bar pinned at the bottom */
+:root {
+  --bg: #f3f5fa;
+  --surface: #ffffff;
+  --ink: #18223d;
+  --muted: #5d6784;
+  --line: #d9deea;
+  --accent: #2348c7;
+  --accent-soft: #e3e9fb;
+  --mark: #f2c14e;
+  --mark-soft: #fdf3d8;
+  --good: #1f8a5b;
+  --good-soft: #def3e8;
+  --bad: #b8433a;
+  --bad-soft: #f9e3e1;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #10152a; --surface: #182040; --ink: #e6eaf6; --muted: #9aa4c4; --line: #2a3459;
+  --accent: #8ea6ff; --accent-soft: #232f5e; --mark: #f2c14e; --mark-soft: #3a3320;
+  --good: #5fd09a; --good-soft: #17352a; --bad: #f08a80; --bad-soft: #3d2124; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #10152a; --surface: #182040; --ink: #e6eaf6; --muted: #9aa4c4; --line: #2a3459;
+  --accent: #8ea6ff; --accent-soft: #232f5e; --mark: #f2c14e; --mark-soft: #3a3320;
+  --good: #5fd09a; --good-soft: #17352a; --bad: #f08a80; --bad-soft: #3d2124; color-scheme: dark }
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; }
+* { box-sizing: border-box; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.app { height: 100%; display: flex; flex-direction: column; max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 14px 10px; }
+.brand { font-family: var(--f-display); font-weight: 800; font-size: 1.45rem; letter-spacing: -0.02em; margin: 0; }
+.brand span { background: linear-gradient(transparent 62%, var(--mark) 62%); padding: 0 2px; }
+.level { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
+.level select { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+
+nav.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+nav.tabs button { background: none; border: 0; padding: 10px 14px; font-weight: 700; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.panel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; padding-block: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Chat */
+.scenarios { display: flex; gap: 6px; overflow-x: auto; padding-block: 12px 2px; scrollbar-width: none; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: .88rem; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.msg { max-width: 88%; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.msg.me { align-self: flex-end; }
+.bubble { padding: 10px 14px; border-radius: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.tutor .bubble { background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.msg.me .bubble { background: var(--accent); color: var(--bg); border-bottom-right-radius: 4px; }
+.tools { display: flex; gap: 6px; }
+.mini { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 2px 8px; font-size: .8rem; color: var(--muted); }
+.fix { background: var(--mark-soft); border-radius: 10px; padding: 8px 12px; font-size: .9rem; display: flex; flex-direction: column; gap: 4px; }
+.fix .label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--muted); }
+.fix.ok { background: var(--good-soft); }
+.useful { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .9rem; }
+.thinking { color: var(--muted); font-style: italic; }
+.composer { display: flex; gap: 8px; padding-block: 10px 12px; border-top: 1px solid var(--line); align-items: flex-end; }
+.composer textarea { flex: 1; min-width: 0; resize: none; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 12px; max-height: 140px; }
+.btn { border: 0; background: var(--accent); color: var(--bg); font-weight: 700; border-radius: 12px; padding: 10px 16px; }
+.btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.btn:disabled { opacity: .5; cursor: default; }
+.hint { font-size: .8rem; color: var(--muted); margin: 0; }
+
+/* Quiz */
+.quiz-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.quiz-controls select { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; flex: 1; min-width: 0; }
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.q h3 { margin: 0; font-size: 1.02rem; text-wrap: balance; }
+.q .num { font-family: var(--f-display); color: var(--muted); font-size: .8rem; letter-spacing: .06em; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 480px) { .opts { grid-template-columns: 1fr; } }
+.opt { text-align: left; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+.opt.right { background: var(--good-soft); border-color: var(--good); }
+.opt.wrong { background: var(--bad-soft); border-color: var(--bad); }
+.explain { font-size: .9rem; color: var(--muted); margin: 0; }
+.score { font-family: var(--f-display); font-weight: 800; font-size: 1.2rem; }
+.tag { display: inline-block; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; background: var(--mark-soft); padding: 2px 8px; border-radius: 6px; font-weight: 700; }
+
+/* Words */
+.addword { display: flex; gap: 8px; flex-wrap: wrap; }
+.addword input { flex: 1 1 140px; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 9px 12px; }
+.words { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.words li { display: flex; align-items: center; gap: 10px; padding: 10px 2px; border-bottom: 1px solid var(--line); }
+.words .en { font-weight: 700; }
+.words .it { color: var(--muted); flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.empty { color: var(--muted); text-align: center; padding: 30px 10px; }
+.notice { background: var(--accent-soft); border-radius: 12px; padding: 10px 14px; font-size: .9rem; }
+.flash { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 999px; font-size: .9rem; }
+@media (prefers-reduced-motion: no-preference) { .msg { animation: up .2s ease-out; } @keyframes up { from { transform: translateY(6px); opacity: .6 } } }
+</style>
+
+<div class="app">
+  <header>
+    <h1 class="brand"><span>English</span> Coach</h1>
+    <label class="level">Il mio livello
+      <select id="level">
+        <option value="A1">A1 · principiante</option>
+        <option value="A2" selected>A2 · base</option>
+        <option value="B1">B1 · intermedio</option>
+        <option value="B2">B2 · intermedio alto</option>
+        <option value="C1">C1 · avanzato</option>
+      </select>
+    </label>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-chat" aria-selected="true" data-panel="chat">Conversazione</button>
+    <button role="tab" id="tab-quiz" aria-selected="false" data-panel="quiz">Esercizi</button>
+    <button role="tab" id="tab-words" aria-selected="false" data-panel="words">Le mie parole</button>
+  </nav>
+
+  <main>
+    <!-- CHAT -->
+    <section class="panel" id="panel-chat">
+      <div class="scenarios" id="scenarios"></div>
+      <div class="scroll" id="chatlog" aria-live="polite"></div>
+      <form class="composer" id="composer">
+        <textarea id="input" rows="1" placeholder="Scrivi in inglese… (o chiedi in italiano: “come si dice…?”)"></textarea>
+        <button class="btn" id="send" type="submit">Invia</button>
+      </form>
+    </section>
+
+    <!-- QUIZ -->
+    <section class="panel" id="panel-quiz" hidden>
+      <div class="scroll" id="quizscroll">
+        <div class="quiz-controls">
+          <select id="topic">
+            <option>Grammatica mista</option>
+            <option>Tempi verbali (present, past, future)</option>
+            <option>Present perfect vs past simple</option>
+            <option>Preposizioni (in, on, at…)</option>
+            <option>Phrasal verbs comuni</option>
+            <option>Vocabolario di tutti i giorni</option>
+            <option>Falsi amici italiano-inglese</option>
+          </select>
+          <button class="btn" id="newquiz">Nuovo esercizio</button>
+        </div>
+        <div id="quiz"></div>
+      </div>
+    </section>
+
+    <!-- WORDS -->
+    <section class="panel" id="panel-words" hidden>
+      <div class="scroll">
+        <form class="addword" id="addword">
+          <input id="w-en" placeholder="Parola inglese" autocomplete="off">
+          <input id="w-it" placeholder="Traduzione" autocomplete="off">
+          <button class="btn" type="submit">Aggiungi</button>
+        </form>
+        <p class="hint" id="wordsnote">Le parole utili della conversazione si salvano con un tocco su “Salva”.</p>
+        <ul class="words" id="words"></ul>
+        <button class="btn ghost" id="practice" hidden>Ripassa le mie parole con un quiz</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+
+  /* ---------- shared state ---------- */
+  let sample = null;
+  const levelEl = $("#level");
+  levelEl.value = store.get("ec-level", "A2");
+  levelEl.onchange = () => store.set("ec-level", levelEl.value);
+
+  function flash(text) {
+    const el = document.createElement("div");
+    el.className = "flash"; el.textContent = text;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 1800);
+  }
+  function errCopy(e) {
+    const c = e && e.code;
+    if (c === "not_granted") return "Per usare il tutor devi consentire a questa pagina di usare Claude. Ricarica la pagina e premi “Consenti”.";
+    if (c === "rate_limited") return "Troppe richieste in poco tempo. Aspetta un minuto e riprova.";
+    if (c === "cancelled") return "";
+    return "Non sono riuscito a rispondere. Riprova tra poco.";
+  }
+  function speak(text) {
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-GB"; u.rate = levelEl.value <= "A2" ? 0.85 : 1;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    } catch { flash("La lettura ad alta voce non è disponibile qui"); }
+  }
+
+  /* ---------- tabs ---------- */
+  document.querySelectorAll("nav.tabs button").forEach((b) => {
+    b.onclick = () => showTab(b.dataset.panel);
+  });
+  function showTab(name) {
+    document.querySelectorAll("nav.tabs button").forEach((x) => x.setAttribute("aria-selected", x.dataset.panel === name));
+    ["chat", "quiz", "words"].forEach((p) => ($("#panel-" + p).hidden = p !== name));
+    store.set("ec-tab", name);
+  }
+  showTab(store.get("ec-tab", "chat"));
+
+  /* ---------- conversation ---------- */
+  const SCENARIOS = [
+    ["free", "Chiacchierata libera", "a free, friendly chat about the student's life and interests"],
+    ["cafe", "Al bar", "ordering at a café in London; you are the barista"],
+    ["airport", "In aeroporto", "check-in at an airport; you are the airline staff"],
+    ["hotel", "In hotel", "checking in at a hotel; you are the receptionist"],
+    ["job", "Colloquio di lavoro", "a job interview; you are the interviewer"],
+    ["doctor", "Dal medico", "a visit to the doctor; you are the doctor"],
+    ["directions", "Chiedere indicazioni", "asking for directions in a city; you are a local"],
+  ];
+  const OPENERS = {
+    free: "Hi! I'm your English coach. How are you today? Tell me something about your day.",
+    cafe: "Good morning! Welcome to The Corner Café. What can I get for you?",
+    airport: "Hello! Can I see your passport and ticket, please? Where are you flying to today?",
+    hotel: "Good evening, welcome to the Riverside Hotel. Do you have a reservation?",
+    job: "Hello, thanks for coming in today. Could you start by telling me a little about yourself?",
+    doctor: "Hello, please take a seat. What seems to be the problem today?",
+    directions: "Hi there! You look a bit lost. Can I help you find something?",
+  };
+  let scenario = store.get("ec-scenario", "free");
+  let turns = store.get("ec-turns-" + scenario, null);
+  let ctl = null;
+
+  const scenEl = $("#scenarios");
+  SCENARIOS.forEach(([id, label]) => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.textContent = label; b.dataset.id = id;
+    b.onclick = () => switchScenario(id);
+    scenEl.appendChild(b);
+  });
+  function switchScenario(id) {
+    ctl?.abort();
+    scenario = id; store.set("ec-scenario", id);
+    turns = store.get("ec-turns-" + id, null);
+    renderChat();
+  }
+  function freshTurns() { return [{ role: "assistant", content: OPENERS[scenario] }]; }
+
+  function rules() {
+    const sc = SCENARIOS.find((s) => s[0] === scenario)[2];
+    return `You are a warm, patient English tutor for an Italian speaker whose CEFR level is ${levelEl.value}.
+Role-play scenario: ${sc}.
+
+Answer EVERY message in exactly this format:
+1. Your reply IN ENGLISH, 1-4 short sentences, using vocabulary and grammar suited to level ${levelEl.value}. Stay in the scenario and end with a question so the conversation continues. If the student writes in Italian or asks how to say something, help them briefly (you may use a little Italian) and show the English phrase, then continue.
+2. A line containing only: ###
+3. In ITALIAN, corrections of the student's LAST message only. One line per mistake, in the form:
+ERRORE: <wrong part> => <correct English> | <short explanation in Italian>
+If there are no mistakes, write exactly: OK
+4. Then one line: PAROLA: <one useful English word or expression from your reply> = <Italian translation>
+
+Never skip the ### line. Keep corrections kind and short.`;
+  }
+
+  function parse(text) {
+    const i = text.indexOf("###");
+    if (i < 0) return { reply: text.trim(), notes: null };
+    return { reply: text.slice(0, i).trim(), notes: text.slice(i + 3).trim() };
+  }
+
+  function renderNotes(container, notes) {
+    container.innerHTML = "";
+    if (!notes) return;
+    const lines = notes.split("\n").map((l) => l.trim()).filter(Boolean);
+    const errs = lines.filter((l) => /^ERRORE:/i.test(l));
+    const ok = lines.some((l) => /^OK\b/i.test(l));
+    const word = lines.find((l) => /^PAROLA:/i.test(l));
+    if (errs.length || ok) {
+      const box = document.createElement("div");
+      box.className = "fix" + (errs.length ? "" : " ok");
+      const lab = document.createElement("div");
+      lab.className = "label";
+      lab.textContent = errs.length ? "Correzioni del tuo messaggio" : "Il tuo messaggio";
+      box.appendChild(lab);
+      if (!errs.length) { const p = document.createElement("div"); p.textContent = "Perfetto, nessun errore!"; box.appendChild(p); }
+      errs.forEach((l) => {
+        const m = l.replace(/^ERRORE:\s*/i, "").match(/^(.*?)\s*=>\s*(.*?)(?:\s*\|\s*(.*))?$/);
+        const p = document.createElement("div");
+        if (m) {
+          const s = document.createElement("s"); s.textContent = m[1];
+          const b = document.createElement("b"); b.textContent = m[2];
+          p.append(s, " → ", b);
+          if (m[3]) { const e = document.createElement("span"); e.style.color = "var(--muted)"; e.textContent = " — " + m[3]; p.append(e); }
+        } else p.textContent = l.replace(/^ERRORE:\s*/i, "");
+        box.appendChild(p);
+      });
+      container.appendChild(box);
+    }
+    if (word) {
+      const m = word.replace(/^PAROLA:\s*/i, "").split("=");
+      const en = (m[0] || "").trim(), it = (m.slice(1).join("=") || "").trim();
+      if (en) {
+        const row = document.createElement("div"); row.className = "useful";
+        const t = document.createElement("span");
+        const b = document.createElement("b"); b.textContent = en;
+        t.append("Parola utile: ", b, it ? " = " + it : "");
+        const save = document.createElement("button"); save.className = "mini"; save.type = "button"; save.textContent = "Salva";
+        save.onclick = async () => { await addWord(en, it); save.textContent = "Salvata"; save.disabled = true; };
+        const say = document.createElement("button"); say.className = "mini"; say.type = "button"; say.textContent = "Ascolta";
+        say.onclick = () => speak(en);
+        row.append(t, say, save);
+        container.appendChild(row);
+      }
+    }
+  }
+
+  function addMsg(role, content) {
+    const wrap = document.createElement("div");
+    wrap.className = "msg " + (role === "user" ? "me" : "tutor");
+    const bubble = document.createElement("div"); bubble.className = "bubble";
+    wrap.appendChild(bubble);
+    const notes = document.createElement("div");
+    notes.style.display = "flex"; notes.style.flexDirection = "column"; notes.style.gap = "6px";
+    if (role !== "user") {
+      const tools = document.createElement("div"); tools.className = "tools";
+      const say = document.createElement("button"); say.className = "mini"; say.type = "button"; say.textContent = "Ascolta";
+      say.onclick = () => speak(bubble.textContent);
+      tools.appendChild(say);
+      wrap.append(tools, notes);
+    }
+    const p = role === "user" ? { reply: content } : parse(content);
+    bubble.textContent = p.reply;
+    if (p.notes) renderNotes(notes, p.notes);
+    $("#chatlog").appendChild(wrap);
+    $("#chatlog").scrollTop = 1e9;
+    return { wrap, bubble, notes };
+  }
+
+  function renderChat() {
+    scenEl.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", c.dataset.id === scenario));
+    if (!turns || !turns.length) turns = freshTurns();
+    const log = $("#chatlog"); log.innerHTML = "";
+    if (!sample) {
+      const n = document.createElement("div"); n.className = "notice"; n.id = "chatnotice";
+      n.textContent = "Collegamento al tutor in corso… Se non parte, apri questa pagina da claude.ai con il tuo account.";
+      log.appendChild(n);
+    }
+    turns.forEach((t) => addMsg(t.role, t.content));
+    const reset = document.createElement("button");
+    reset.className = "mini"; reset.type = "button"; reset.textContent = "Ricomincia questa conversazione";
+    reset.style.alignSelf = "center";
+    reset.onclick = () => { ctl?.abort(); turns = freshTurns(); store.set("ec-turns-" + scenario, turns); renderChat(); };
+    if (turns.length > 1) log.appendChild(reset);
+    log.scrollTop = 1e9;
+  }
+
+  const input = $("#input");
+  input.value = store.get("ec-draft", "");
+  input.addEventListener("input", () => {
+    store.set("ec-draft", input.value);
+    input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140) + "px";
+  });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(pointer: fine)").matches) { e.preventDefault(); $("#composer").requestSubmit(); }
+  });
+
+  $("#composer").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    if (!sample) { flash("Il tutor non è ancora collegato"); return; }
+    input.value = ""; store.set("ec-draft", ""); input.style.height = "auto";
+    turns.push({ role: "user", content: text });
+    store.set("ec-turns-" + scenario, turns);
+    $("#chatlog").querySelector(".mini[style]")?.remove();
+    addMsg("user", text);
+    const out = addMsg("assistant", "");
+    out.bubble.innerHTML = '<span class="thinking">Sto pensando…</span>';
+    const send = $("#send"); send.disabled = true;
+    ctl = new AbortController();
+    // Send the instructions as the first user turn, then the recent conversation
+    const recent = turns.slice(-20);
+    const msgs = [{ role: "user", content: rules() + "\n\n(Start of conversation.)" }];
+    recent.forEach((t) => msgs.push({ role: t.role, content: t.content }));
+    // The API needs alternating turns starting with user: merge consecutive same-role turns
+    const merged = [];
+    msgs.forEach((m) => { const last = merged[merged.length - 1]; if (last && last.role === m.role) last.content += "\n\n" + m.content; else merged.push({ ...m }); });
+    try {
+      const { text: answer } = await sample(merged, {
+        cache: false, signal: ctl.signal, modelTier: "quick",
+        onText: ({ text: t }) => {
+          const p = parse(t);
+          out.bubble.textContent = p.reply || "…";
+          if (p.notes) renderNotes(out.notes, p.notes);
+          $("#chatlog").scrollTop = 1e9;
+        },
+      });
+      const p = parse(answer);
+      out.bubble.textContent = p.reply; renderNotes(out.notes, p.notes);
+      turns.push({ role: "assistant", content: answer });
+      store.set("ec-turns-" + scenario, turns);
+    } catch (err) {
+      const msg = errCopy(err);
+      turns.pop(); store.set("ec-turns-" + scenario, turns);
+      out.wrap.remove();
+      if (msg) flash(msg.length > 70 ? "Errore: consenti l'uso di Claude e riprova" : msg);
+      if (err && err.code === "not_granted") {
+        const n = document.createElement("div"); n.className = "notice"; n.textContent = msg;
+        $("#chatlog").appendChild(n);
+      }
+      input.value = text;
+    } finally { send.disabled = false; ctl = null; }
+  });
+
+  /* ---------- quiz ---------- */
+  const EXAMPLE_QUIZ = [{
+    q: "I ___ to London three times.", options: ["have been", "was", "am", "have went"], answer: 0,
+    explain: "Con esperienze di vita senza un momento preciso si usa il present perfect: have been.",
+  }];
+  function renderQuiz(qs, isExample) {
+    const box = $("#quiz"); box.innerHTML = "";
+    box.style.display = "flex"; box.style.flexDirection = "column"; box.style.gap = "12px";
+    if (isExample) {
+      const n = document.createElement("p"); n.className = "hint";
+      n.innerHTML = '<span class="tag">Esempio</span> Scegli un argomento e premi “Nuovo esercizio”: Claude prepara 6 domande al tuo livello.';
+      box.appendChild(n);
+    }
+    let answered = 0, right = 0;
+    const score = document.createElement("div"); score.className = "score";
+    qs.forEach((item, i) => {
+      const card = document.createElement("div"); card.className = "q";
+      const num = document.createElement("div"); num.className = "num"; num.textContent = `DOMANDA ${i + 1} DI ${qs.length}`;
+      const h = document.createElement("h3"); h.textContent = item.q;
+      const opts = document.createElement("div"); opts.className = "opts";
+      const ex = document.createElement("p"); ex.className = "explain"; ex.hidden = true; ex.textContent = item.explain || "";
+      item.options.forEach((o, j) => {
+        const b = document.createElement("button"); b.className = "opt"; b.type = "button"; b.textContent = o;
+        b.onclick = () => {
+          if (card.dataset.done) return;
+          card.dataset.done = "1"; answered++;
+          if (j === item.answer) right++;
+          opts.children[item.answer].classList.add("right");
+          if (j !== item.answer) b.classList.add("wrong");
+          ex.hidden = false;
+          if (answered === qs.length) score.textContent = `Risultato: ${right} su ${qs.length}` + (right === qs.length ? " — perfetto!" : "");
+        };
+        opts.appendChild(b);
+      });
+      card.append(num, h, opts, ex);
+      box.appendChild(card);
+    });
+    box.appendChild(score);
+  }
+  renderQuiz(EXAMPLE_QUIZ, true);
+
+  async function makeQuiz(topicText) {
+    if (!sample) { flash("Il tutor non è ancora collegato"); return; }
+    const btn = $("#newquiz"); btn.disabled = true;
+    $("#quiz").innerHTML = '<p class="thinking">Preparo le domande… (può richiedere qualche secondo)</p>';
+    try {
+      const data = await sample.json(
+        `Create a multiple-choice English exercise for an Italian learner at CEFR level ${levelEl.value}.
+Topic: ${topicText}.
+Write 6 questions. Each question is an English sentence with a gap (___) or a short question; give 4 options, exactly one correct.
+Explanations must be in ITALIAN, one or two short sentences.
+Vary the position of the correct answer.
+Return only JSON: {"questions":[{"q":"...","options":["...","...","...","..."],"answer":<index 0-3>,"explain":"..."}]}`,
+        { cache: false }
+      );
+      const qs = (data && data.questions || []).filter((q) => q && q.q && Array.isArray(q.options) && q.options.length >= 2 && Number.isInteger(q.answer) && q.answer < q.options.length);
+      if (!qs.length) throw { code: "bad" };
+      renderQuiz(qs, false);
+      $("#quizscroll").scrollTop = 0;
+    } catch (err) {
+      $("#quiz").innerHTML = "";
+      const p = document.createElement("p"); p.className = "notice"; p.textContent = errCopy(err) || "Annullato.";
+      $("#quiz").appendChild(p);
+    } finally { btn.disabled = false; }
+  }
+  $("#newquiz").onclick = () => makeQuiz($("#topic").value);
+
+  /* ---------- words (saved privately per person; local fallback) ---------- */
+  let words = [];
+  let wordsCol = null;
+  function renderWords() {
+    const ul = $("#words"); ul.innerHTML = "";
+    if (!words.length) {
+      const li = document.createElement("li"); li.className = "empty"; li.style.border = "0"; li.style.display = "block";
+      li.textContent = "Nessuna parola ancora. Aggiungine una qui sopra, oppure salva le “parole utili” dalla conversazione.";
+      ul.appendChild(li);
+    }
+    words.forEach((w) => {
+      const li = document.createElement("li");
+      const en = document.createElement("span"); en.className = "en"; en.textContent = w.en;
+      const it = document.createElement("span"); it.className = "it"; it.textContent = w.it || "";
+      const say = document.createElement("button"); say.className = "mini"; say.type = "button"; say.textContent = "Ascolta";
+      say.onclick = () => speak(w.en);
+      const del = document.createElement("button"); del.className = "mini"; del.type = "button"; del.textContent = "Elimina";
+      del.onclick = () => removeWord(w);
+      li.append(en, it, say, del); ul.appendChild(li);
+    });
+    $("#practice").hidden = words.length < 4;
+  }
+  async function addWord(en, it) {
+    const w = { en: en.slice(0, 120), it: (it || "").slice(0, 200), added: Date.now() };
+    if (words.some((x) => x.en.toLowerCase() === w.en.toLowerCase())) { flash("Già nelle tue parole"); return; }
+    if (wordsCol) {
+      try { await wordsCol.add(w); flash("Parola salvata"); return; } catch { /* fall back to local */ }
+    }
+    w.id = "l" + w.added; words.unshift(w); store.set("ec-words", words); renderWords(); flash("Parola salvata");
+  }
+  async function removeWord(w) {
+    if (wordsCol && !String(w.id).startsWith("l")) { try { await wordsCol.doc(w.id).delete(); return; } catch {} }
+    words = words.filter((x) => x !== w); store.set("ec-words", words); renderWords();
+  }
+  $("#addword").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const en = $("#w-en").value.trim(), it = $("#w-it").value.trim();
+    if (!en) return;
+    addWord(en, it); $("#w-en").value = ""; $("#w-it").value = ""; $("#w-en").focus();
+  });
+  $("#practice").onclick = () => {
+    showTab("quiz");
+    const list = words.slice(0, 30).map((w) => `${w.en}${w.it ? " (" + w.it + ")" : ""}`).join(", ");
+    makeQuiz("Review of these words the student saved: " + list + ". Test meaning and usage in context.");
+  };
+  words = store.get("ec-words", []);
+  renderWords();
+
+  /* ---------- connect to Claude ---------- */
+  renderChat();
+  (async () => {
+    if (!window.claude) { const n = $("#chatnotice"); if (n) n.textContent = "Apri questa pagina da claude.ai per parlare con il tutor."; return; }
+    sample = await window.claude.use("sample");
+    const n = $("#chatnotice");
+    if (sample) n?.remove();
+    else if (n) n.textContent = "Il tutor non è disponibile in questa vista. Apri la pagina da claude.ai, con il tuo account.";
+
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    const uid = user ? await user.id() : null;
+    if (db && uid) {
+      wordsCol = db.doc("data/users/" + uid + "/coach").collection("words");
+      const local = words.filter((w) => String(w.id).startsWith("l"));
+      wordsCol.orderBy("added", "desc").onSnapshot((snap) => {
+        words = snap.docs.map((d) => ({ id: d.id, ...d.data() })).concat(local.filter((l) => !snap.docs.some((d) => d.data().en === l.en)));
+        renderWords();
+      }, () => {});
+      $("#wordsnote").textContent = "Le tue parole sono salvate nel tuo account: le ritrovi anche sul telefono.";
+    }
+  })();
+})();
+</script>
